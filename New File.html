@@ -1,0 +1,2832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Toolkit Pro by Type01warrior</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #2d3436;
+            --label-color: #636e72;
+            --card-bg: #ffffff;
+            --shadow: 0 8px 16px rgba(0,0,0,0.05);
+            --border: 1px solid #e1e8ed;
+            --accent: #6c5ce7; 
+            --icon-bg: #eef2fa;
+            --radius: 12px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #dfe6e9;
+            --label-color: #b2bec3;
+            --card-bg: #1e1e1e;
+            --shadow: 0 8px 16px rgba(0,0,0,0.3);
+            --border: 1px solid #2d3436;
+            --accent: #6c5ce7;
+            --icon-bg: #2d3436;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Lexend', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            transition: background-color 0.3s, color 0.3s; 
+        }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            display: flex; 
+            justify-content: center; 
+            padding: 0; 
+            margin: 0;
+            min-height: 100vh; 
+            width: 100%;
+        }
+        
+        .app-container { 
+            width: 100%; 
+            max-width: 100%;
+            position: relative; 
+            display: flex;
+            flex-direction: column;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        /* --- HEADER & GLOBAL UI --- */
+        .app-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 25px; 
+            margin-top: 10px; 
+            position: relative;
+        }
+        
+        .header-text h1 { 
+            font-weight: 800; 
+            font-size: 22px; 
+            margin-bottom: 2px; 
+            text-transform: uppercase; 
+        }
+        
+        .header-text span { 
+            font-weight: 600; 
+            font-size: 13px; 
+            color: var(--label-color); 
+        }
+        
+        .header-text a { 
+            color: var(--accent); 
+            text-decoration: none; 
+            font-weight: 700; 
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .theme-toggle, .menu-toggle { 
+            background: var(--card-bg); 
+            border: var(--border); 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            color: var(--text-color); 
+            box-shadow: var(--shadow); 
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            display: none; 
+            position: absolute; 
+            top: 55px; 
+            right: 0; 
+            background: var(--card-bg);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
+            border-radius: 8px; 
+            border: 1px solid var(--border); 
+            width: 160px; 
+            flex-direction: column; 
+            z-index: 100; 
+            overflow: hidden;
+            animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); 
+            transform-origin: top right;
+        }
+        .dropdown-menu.show { display: flex; }
+        .dropdown-item { 
+            padding: 12px 15px; 
+            font-size: 13px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            border-bottom: 1px solid var(--border); 
+            color: var(--text-color);
+        }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:active { background-color: var(--bg-color); }
+
+        @keyframes popIn { 
+            from { opacity: 0; transform: scale(0.95); } 
+            to { opacity: 1; transform: scale(1); } 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* --- HUB VIEW MENUS --- */
+        .menu-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            padding-bottom: 40px; 
+        }
+        
+        .menu-card { 
+            background: var(--card-bg); 
+            border: var(--border); 
+            border-radius: 16px; 
+            padding: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            cursor: pointer; 
+            box-shadow: var(--shadow); 
+            transition: transform 0.2s; 
+            overflow: hidden;
+        }
+        .menu-card:active { transform: scale(0.98); }
+        
+        .menu-icon { 
+            background: var(--icon-bg); 
+            width: 50px; 
+            height: 50px; 
+            min-width: 50px;
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 24px; 
+            font-weight: 800; 
+        }
+        
+        .menu-text { flex: 1; min-width: 0; }
+        .menu-text h3 { font-size: 15px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .menu-text p { font-size: 12px; color: var(--label-color); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* --- APP VIEWS & FORMS --- */
+        #calc-view { display: none; flex-direction: column; flex: 1; }
+        .back-btn { 
+            background: transparent; 
+            border: none; 
+            color: var(--accent); 
+            font-weight: 700; 
+            font-size: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 5px; 
+            cursor: pointer; 
+            margin-bottom: 20px; 
+            padding: 5px 0; 
+            outline: none; 
+        }
+        .calc-section { 
+            display: none; 
+            background: var(--card-bg); 
+            border-radius: 16px; 
+            padding: 20px; 
+            box-shadow: var(--shadow); 
+            border: var(--border); 
+            margin-bottom: 20px; 
+            animation: fadeIn 0.3s ease; 
+            position: relative;
+        }
+        .calc-section.active { display: block; }
+        
+        .calc-title { 
+            font-size: 18px; 
+            font-weight: 700; 
+            margin-bottom: 20px; 
+            border-bottom: 2px solid var(--border); 
+            padding-bottom: 10px; 
+        }
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; flex: 1; display: flex; flex-direction: column; }
+        label { font-size: 12px; font-weight: 600; color: var(--label-color); margin-bottom: 8px; text-transform: uppercase; }
+        
+        input[type="number"], input[type="text"], select { 
+            width: 100%; 
+            padding: 14px; 
+            background-color: var(--bg-color); 
+            border: var(--border); 
+            border-radius: 10px; 
+            font-size: 15px; 
+            color: var(--text-color); 
+            outline: none; 
+        }
+        input:focus, select:focus { border-color: var(--accent); }
+        
+        .btn { 
+            width: 100%; 
+            padding: 16px; 
+            font-size: 15px; 
+            font-weight: 700; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            margin-top: 10px; 
+            text-transform: uppercase; 
+            background-color: var(--accent); 
+            color: white; 
+            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3); 
+        }
+        .btn-copy { background-color: #4CAF50; box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3); margin-bottom: 10px;}
+        
+        /* --- RESULTS AREA --- */
+        .results-area { 
+            margin-top: 20px; 
+            padding: 20px; 
+            border-radius: 12px; 
+            background-color: var(--bg-color); 
+            text-align: center; 
+            border: var(--border); 
+        }
+        .res-primary { font-size: 32px; font-weight: 800; color: var(--accent); margin-bottom: 5px; }
+        .res-label { font-size: 13px; font-weight: 600; color: var(--label-color); text-transform: uppercase; }
+        .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .res-box { background: var(--card-bg); padding: 10px; border-radius: 8px; border: var(--border); }
+        .res-box span { display: block; font-size: 11px; color: var(--label-color); }
+        .res-box strong { font-size: 16px; color: var(--text-color); }
+
+        /* --- 1RM SPECIFIC UI --- */
+        .percentages-title { font-size: 12px; font-weight: 800; color: var(--label-color); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .pct-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--text-color); }
+        .pct-row:last-child { border-bottom: none; }
+        
+        .stat-item {
+            display: flex; padding: 15px; margin-bottom: 15px; background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); align-items: center; cursor: pointer; transition: all 0.2s;
+            box-shadow: var(--shadow); border-left: 5px solid var(--accent);
+        }
+        .stat-item:active { transform: scale(0.98); }
+        
+        .stat-detail-view { display: none; flex-direction: column; width: 100%; background: var(--card-bg); border: var(--border); border-radius: var(--radius); padding: 20px; margin-top: 20px; }
+        .chart-container { position: relative; height: 200px; width: 100%; margin-bottom: 15px; }
+
+        .note-overlay, .settings-overlay {
+            display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-color); z-index: 50; flex-direction: column; animation: fadeIn 0.2s; padding: 20px;
+        }
+        .note-textarea { width: 100%; height: 200px; padding: 15px; border: var(--border); border-radius: 10px; background: var(--card-bg); color: var(--text-color); font-size: 14px; margin-top: 15px; resize: none; outline: none; }
+
+        /* --- DIET & LOG CARDS --- */
+        .meal-box { background: var(--card-bg); padding: 20px; border-radius: 18px; margin-bottom: 20px; box-shadow: var(--shadow); border: var(--border); border-left: 6px solid var(--accent); text-align: left; position: relative; }
+        .meal-title { font-weight: 800; color: var(--accent); font-size: 18px; margin-bottom: 10px; display: block; display: flex; align-items: center; gap: 8px;}
+        .food-item { font-size: 13px; margin: 10px 0; font-weight: 400; line-height: 1.4; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 5px; color: var(--text-color); }
+        .food-item:last-child { border-bottom: none; }
+        .item-macros { font-size: 10px; color: var(--accent); font-weight: 600; display: block; margin-top: 2px; }
+        
+        .macro-container { margin-top: 10px; }
+        .macro-tag { font-size: 11px; background: var(--bg-color); padding: 4px 8px; border-radius: 6px; border: var(--border); margin-right: 4px; display: inline-block; margin-top: 5px; color: var(--text-color);}
+        .kcal-tag { background: var(--accent) !important; color: white !important; font-weight: 600; border: none; }
+
+        .search-food-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: var(--border); font-size: 13px; }
+        .search-food-item button { background: var(--accent); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* --- TABS --- */
+        .tab-container { display: flex; gap: 10px; padding-bottom: 15px; border-bottom: 1px solid var(--border); margin-bottom: 15px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .tab-container::-webkit-scrollbar { display: none; }
+        .inner-tab { background: var(--bg-color); border: var(--border); padding: 10px 20px; border-radius: 20px; cursor: pointer; color: var(--label-color); font-weight: 700; font-size: 13px; white-space: nowrap; transition: 0.2s; }
+        .inner-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        /* --- WORKOUT ROUTINES ACCORDION & GRID TABLE --- */
+        .accordion { background: var(--bg-color); border: var(--border); border-radius: 12px; margin-bottom: 15px; overflow: hidden; }
+        .acc-header { padding: 18px 20px; background: var(--card-bg); cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: var(--text-color); font-size: 15px; transition: background 0.2s; text-transform: uppercase; }
+        .acc-header:active { background: var(--bg-color); }
+        .acc-content { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        
+        .workout-plan { margin: 15px 0 25px 0; background: var(--card-bg); border-radius: 10px; border: var(--border); overflow: hidden; }
+        .workout-plan-title { background: rgba(128,128,128,0.05); padding: 10px 15px; font-size: 12px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; border-bottom: var(--border); }
+        
+        /* ADAPTIVE CSS GRID */
+        .workout-table { width: 100%; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 5px; }
+        .workout-table::-webkit-scrollbar { display: none; }
+        
+        .wt-header, .wt-row { 
+            display: grid; 
+            grid-template-columns: 260px 60px 140px 80px; 
+            gap: 10px; 
+            width: max-content; 
+            padding: 12px 15px; 
+            border-bottom: 1px solid rgba(128,128,128,0.1); 
+            align-items: center; 
+        }
+        .wt-header { background: rgba(128,128,128,0.02); font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--label-color); letter-spacing: 0.5px; }
+        .wt-row:last-child { border-bottom: none; }
+        
+        .wt-col-name { font-size: 13px; font-weight: 700; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+        .wt-col-sets { font-size: 13px; font-weight: 700; color: var(--accent); text-align: center; }
+        .wt-col-reps { font-size: 12px; color: var(--label-color); font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wt-col-rest { font-size: 12px; color: #e17055; font-weight: 700; text-align: center; white-space: nowrap; }
+
+        /* --- FOOD SELECTION MODAL --- */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); z-index: 200; align-items: flex-end; justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-sheet {
+            background: var(--card-bg); border-radius: 20px 20px 0 0; width: 100%; max-width: 100%;
+            max-height: 88vh; display: flex; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-header {
+            padding: 20px 20px 10px; border-bottom: var(--border);
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .modal-header h3 { font-size: 17px; font-weight: 800; }
+        .modal-close { background: none; border: none; color: var(--text-color); font-size: 22px; cursor: pointer; line-height: 1; }
+        .modal-body { overflow-y: auto; padding: 15px 20px; flex: 1; }
+        .modal-body::-webkit-scrollbar { display: none; }
+        .food-cat-title { font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin: 15px 0 8px; }
+        .food-cat-title:first-child { margin-top: 0; }
+        .food-check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .food-check-item { display: flex; align-items: center; gap: 8px; background: var(--bg-color); border: 1px solid #ccc; border-color: var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: 0.15s; }
+        .food-check-item.selected { border-color: var(--accent); background: rgba(108,92,231,0.08); }
+        .food-check-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--label-color); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
+        .food-check-item.selected .food-check-dot { background: var(--accent); border-color: var(--accent); }
+        .food-check-item.selected .food-check-dot::after { content: '✓'; color: white; font-size: 9px; font-weight: 900; }
+        .food-check-label { font-size: 12px; font-weight: 700; color: var(--text-color); line-height: 1.3; }
+        .food-check-macro { font-size: 10px; color: var(--label-color); font-weight: 600; }
+        .modal-footer { padding: 15px 20px; border-top: var(--border); flex-shrink: 0; }
+
+        /* --- SUPERSET ROW COLORS --- */
+        .wt-row.ss-group-1 { background: rgba(84,160,255,0.08); border-left: 3px solid rgba(84,160,255,0.7); }
+        .wt-row.ss-group-2 { background: rgba(16,172,132,0.08); border-left: 3px solid rgba(16,172,132,0.7); }
+        .wt-row.ss-group-3 { background: rgba(255,159,67,0.08); border-left: 3px solid rgba(255,159,67,0.7); }
+        .wt-row.ss-group-4 { background: rgba(253,121,168,0.08); border-left: 3px solid rgba(253,121,168,0.7); }
+        .wt-row.ss-group-5 { background: rgba(155,89,182,0.08); border-left: 3px solid rgba(155,89,182,0.7); }
+        .wt-row.ss-single   { background: transparent; border-left: 3px solid transparent; }
+
+        /* --- CONTACT SECTION --- */
+        .contact-section { margin-top: 20px; text-align: center; padding-bottom: 20px; }
+        .contact-section p { font-size: 12px; font-weight: 700; color: var(--label-color); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+        .social-container { display: flex; justify-content: center; gap: 20px; }
+        .social-btn { display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; border-radius: 50%; background: var(--card-bg); color: var(--text-color); border: var(--border); text-decoration: none; box-shadow: var(--shadow); transition: transform 0.2s;}
+        .social-btn:active { transform: scale(0.9); }
+        .social-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        
+        .version-badge { background: var(--accent); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: 1px; margin-left: 10px; }
+
+        /* ===== AUTH OVERLAY ===== */
+        #auth-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .auth-card {
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+            width: 100%; max-width: 400px; padding: 36px 28px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5); animation: fadeIn 0.4s ease;
+        }
+        .auth-logo { text-align: center; margin-bottom: 28px; }
+        .auth-logo h1 { font-size: 26px; font-weight: 800; color: #fff; text-transform: uppercase; }
+        .auth-logo p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+        .auth-logo .logo-icon { font-size: 44px; margin-bottom: 10px; display: block; }
+        .auth-tabs {
+            display: flex; background: rgba(255,255,255,0.07);
+            border-radius: 12px; padding: 4px; margin-bottom: 24px;
+        }
+        .auth-tab {
+            flex: 1; text-align: center; padding: 10px; border-radius: 9px;
+            font-weight: 700; font-size: 14px; cursor: pointer;
+            color: rgba(255,255,255,0.5); transition: all 0.2s;
+        }
+        .auth-tab.active { background: #6c5ce7; color: #fff; box-shadow: 0 4px 12px rgba(108,92,231,0.4); }
+        .auth-field { margin-bottom: 16px; }
+        .auth-field label { display: block; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+        .auth-field input {
+            width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+            color: #fff; font-size: 15px; font-family: 'Lexend', sans-serif; outline: none; transition: border-color 0.2s;
+        }
+        .auth-field input::placeholder { color: rgba(255,255,255,0.25); }
+        .auth-field input:focus { border-color: #6c5ce7; background: rgba(108,92,231,0.1); }
+        .auth-btn {
+            width: 100%; padding: 16px; background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 800;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 6px 20px rgba(108,92,231,0.4); margin-top: 6px;
+            font-family: 'Lexend', sans-serif; transition: transform 0.15s;
+        }
+        .auth-btn:active { transform: scale(0.98); }
+        .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .auth-btn-secondary {
+            width: 100%; padding: 14px; background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+            color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 700;
+            cursor: pointer; font-family: 'Lexend', sans-serif; margin-top: 10px;
+        }
+        .auth-divider {
+            display: flex; align-items: center; gap: 12px;
+            margin: 18px 0; color: rgba(255,255,255,0.25); font-size: 12px; font-weight: 600;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content:''; flex:1; height:1px; background: rgba(255,255,255,0.1);
+        }
+        .auth-social-row { display: flex; gap: 10px; margin-top: 4px; }
+        .auth-social-btn {
+            flex: 1; padding: 13px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.07); color: #fff; font-size: 13px; font-weight: 700;
+            cursor: pointer; font-family: 'Lexend', sans-serif; display: flex;
+            align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;
+        }
+        .auth-social-btn:hover { background: rgba(255,255,255,0.12); }
+        .auth-social-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+        /* Phone auth steps */
+        #phone-step2 { display: none; }
+        .auth-back-link {
+            text-align: center; margin-top: 12px; font-size: 12px; font-weight: 700;
+            color: rgba(255,255,255,0.4); cursor: pointer;
+        }
+        .auth-back-link:hover { color: rgba(255,255,255,0.7); }
+        .auth-error {
+            background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.3);
+            color: #e74c3c; padding: 12px 16px; border-radius: 10px;
+            font-size: 13px; font-weight: 600; margin-bottom: 16px; display: none;
+        }
+        .auth-success {
+            background: rgba(16,172,132,0.15); border: 1px solid rgba(16,172,132,0.3);
+            color: #10ac84; padding: 12px 16px; border-radius: 10px;
+            font-size: 13px; font-weight: 600; margin-bottom: 16px; display: none;
+        }
+        .user-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 800; font-size: 14px; cursor: pointer;
+            border: 2px solid rgba(108,92,231,0.4); flex-shrink: 0;
+        }
+        #sync-indicator {
+            position: fixed; bottom: 20px; right: 20px; background: var(--card-bg);
+            border: var(--border); border-radius: 20px; padding: 8px 14px;
+            font-size: 12px; font-weight: 700; color: var(--label-color);
+            box-shadow: var(--shadow); display: none; z-index: 500; align-items: center; gap: 6px;
+        }
+        #sync-indicator.show { display: flex; }
+        .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #6c5ce7; animation: pulse 1.2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    </style>
+</head>
+<body data-theme="dark">
+
+<!-- ===== AUTH OVERLAY ===== -->
+<div id="auth-overlay">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <span class="logo-icon">🏋️</span>
+            <h1>Fitness Toolkit <span style="color:#a29bfe;">PRO</span></h1>
+            <p>Your personal fitness companion</p>
+            <p id="platform-note" style="font-size:11px; margin-top:6px; color:rgba(255,255,255,0.3);"></p>
+        </div>
+
+        <!-- Main tabs: Sign In / Create Account -->
+        <div class="auth-tabs">
+            <div class="auth-tab active" id="tab-login"  onclick="switchAuthTab('login')">Sign In</div>
+            <div class="auth-tab"        id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</div>
+        </div>
+
+        <div id="auth-error"   class="auth-error"></div>
+        <div id="auth-success" class="auth-success"></div>
+
+        <!-- ── EMAIL LOGIN ── -->
+        <div id="form-login">
+            <div class="auth-field">
+                <label>Email Address</label>
+                <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+            </div>
+            <div class="auth-field">
+                <label>Password</label>
+                <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+            </div>
+            <button class="auth-btn" id="btn-login" onclick="doLogin()">Sign In</button>
+            <button class="auth-btn-secondary" onclick="doForgotPassword()">Forgot Password?</button>
+            <div class="auth-divider or-divider">or continue with</div>
+            <div class="auth-social-row">
+                <button class="auth-social-btn google-btn" onclick="doGoogleSignIn()">
+                    <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-8 20-20 0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.4 35.6 26.8 36 24 36c-5.2 0-9.6-2.9-11.3-7l-6.5 5C9.7 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.9 2.5-2.6 4.6-4.8 6l6.2 5.2C40.5 35.6 44 30.2 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+                    Google
+                </button>
+                <button class="auth-social-btn" onclick="showPhoneInTab('login')">
+                    📱 Phone
+                </button>
+            </div>
+            <!-- Phone section inside login -->
+            <div id="phone-in-login" style="display:none; margin-top:16px;">
+                <div id="phone-login-step1">
+                    <div class="auth-field">
+                        <label>Phone Number</label>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <span style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:14px 12px; color:#fff; font-size:15px; font-weight:700; white-space:nowrap; flex-shrink:0;">🇮🇳 +91</span>
+                            <input type="tel" id="login-phone-number" placeholder="98765 43210" style="flex:1;" maxlength="10" inputmode="numeric">
+                        </div>
+                    </div>
+                    <p style="font-size:11px; color:rgba(255,255,255,0.35); margin-bottom:10px;">Complete the verification below then tap Send OTP</p>
+                    <div id="recaptcha-login" style="margin:12px 0; transform:scale(0.95); transform-origin:left;"></div>
+                    <button class="auth-btn" id="btn-login-phone-send" onclick="doPhoneSend('login')">Send OTP</button>
+                </div>
+                <div id="phone-login-step2" style="display:none;">
+                    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;text-align:center;">OTP sent to +91<span id="login-phone-display"></span> 📲</p>
+                    <div class="auth-field">
+                        <label>Enter 6-digit OTP</label>
+                        <input type="tel" id="login-phone-otp" placeholder="• • • • • •" maxlength="6" inputmode="numeric" style="letter-spacing:8px; font-size:20px; text-align:center;">
+                    </div>
+                    <button class="auth-btn" id="btn-login-phone-verify" onclick="doPhoneVerify('login')">Verify & Sign In</button>
+                    <div class="auth-back-link" onclick="resetPhone('login')" style="margin-top:12px;">← Change number</div>
+                </div>
+                <div class="auth-back-link" onclick="hidePhoneInTab('login')" style="margin-top:8px;">← Back to email</div>
+            </div>
+        </div>
+
+        <!-- ── EMAIL SIGNUP ── -->
+        <div id="form-signup" style="display:none;">
+            <div class="auth-field">
+                <label>Your Name</label>
+                <input type="text" id="signup-name" placeholder="e.g. John Doe" autocomplete="name">
+            </div>
+            <div class="auth-field">
+                <label>Email Address</label>
+                <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
+            </div>
+            <div class="auth-field">
+                <label>Password (min. 6 characters)</label>
+                <input type="password" id="signup-password" placeholder="Choose a strong password" autocomplete="new-password">
+            </div>
+            <button class="auth-btn" id="btn-signup" onclick="doSignup()">Create Account</button>
+            <div class="auth-divider or-divider">or continue with</div>
+            <div class="auth-social-row">
+                <button class="auth-social-btn google-btn" onclick="doGoogleSignIn()">
+                    <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-8 20-20 0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.4 35.6 26.8 36 24 36c-5.2 0-9.6-2.9-11.3-7l-6.5 5C9.7 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.9 2.5-2.6 4.6-4.8 6l6.2 5.2C40.5 35.6 44 30.2 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+                    Google
+                </button>
+                <button class="auth-social-btn" onclick="showPhoneInTab('signup')">
+                    📱 Phone
+                </button>
+            </div>
+            <!-- Phone section inside signup -->
+            <div id="phone-in-signup" style="display:none; margin-top:16px;">
+                <div id="phone-signup-step1">
+                    <div class="auth-field">
+                        <label>Phone Number</label>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <span style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:14px 12px; color:#fff; font-size:15px; font-weight:700; white-space:nowrap; flex-shrink:0;">🇮🇳 +91</span>
+                            <input type="tel" id="signup-phone-number" placeholder="98765 43210" style="flex:1;" maxlength="10" inputmode="numeric">
+                        </div>
+                    </div>
+                    <p style="font-size:11px; color:rgba(255,255,255,0.35); margin-bottom:10px;">Complete the verification below then tap Send OTP</p>
+                    <div id="recaptcha-signup" style="margin:12px 0; transform:scale(0.95); transform-origin:left;"></div>
+                    <button class="auth-btn" id="btn-signup-phone-send" onclick="doPhoneSend('signup')">Send OTP</button>
+                </div>
+                <div id="phone-signup-step2" style="display:none;">
+                    <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;text-align:center;">OTP sent to +91<span id="signup-phone-display"></span> 📲</p>
+                    <div class="auth-field">
+                        <label>Enter 6-digit OTP</label>
+                        <input type="tel" id="signup-phone-otp" placeholder="• • • • • •" maxlength="6" inputmode="numeric" style="letter-spacing:8px; font-size:20px; text-align:center;">
+                    </div>
+                    <button class="auth-btn" id="btn-signup-phone-verify" onclick="doPhoneVerify('signup')">Verify & Sign In</button>
+                    <div class="auth-back-link" onclick="resetPhone('signup')" style="margin-top:12px;">← Change number</div>
+                </div>
+                <div class="auth-back-link" onclick="hidePhoneInTab('signup')" style="margin-top:8px;">← Back to email</div>
+            </div>
+        </div>
+
+        <!-- old phone tab removed - now inline above -->
+    </div>
+</div>
+
+<div id="sync-indicator"><div class="sync-dot"></div><span>Syncing…</span></div>
+
+<div class="app-container">
+    
+    <div class="app-header" id="main-header">
+        <div class="header-text">
+            <h1>Fitness Toolkit <span style="color:var(--accent);">PRO</span></h1>
+            <span>By <a href="https://www.instagram.com/type01warrior/" target="_blank">Type01warrior</a></span>
+        </div>
+        
+        <div class="header-controls">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Mode">
+                <svg id="theme-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+            <div style="position: relative;">
+                <div id="user-avatar-btn" class="user-avatar" onclick="toggleDropdown()"></div>
+                <div id="dropdown-menu" class="dropdown-menu">
+                    <div class="dropdown-item" id="dropdown-username" style="color:var(--accent); cursor:default; font-size:12px; pointer-events:none;"></div>
+                    <div class="dropdown-item" onclick="openSettings()">App Settings</div>
+                    <div class="dropdown-item" onclick="alert('Thanks for your feedback!')">Send Feedback</div>
+                    <div class="dropdown-item" style="color:#e74c3c;" onclick="doLogout()">Sign Out</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="hub-view" class="menu-list">
+
+        <div class="menu-card" onclick="openCalc('metrics')">
+            <div class="menu-icon" style="background: rgba(255, 71, 87, 0.15); color: #ff4757;">🔥</div>
+            <div class="menu-text"><h3>Body Metrics</h3><p>Calculate TDEE, BMR, and BMI in one place.</p></div>
+        </div>
+
+        <div class="menu-card" onclick="openCalc('macro')">
+            <div class="menu-icon" style="background: rgba(255, 159, 67, 0.15); color: #ff9f43;">🥩</div>
+            <div class="menu-text"><h3>Macro Calculator</h3><p>Find exact daily protein, carbs, and fat needs.</p></div>
+        </div>
+        
+        <div class="menu-card" onclick="openCalc('meal')">
+            <div class="menu-icon" style="background: rgba(16, 172, 132, 0.15); color: #10ac84;">🍱</div>
+            <div class="menu-text"><h3>Diet Planner</h3><p>Generate meals with custom foods (Oats, Paneer, Chicken).</p></div>
+        </div>
+
+        <div class="menu-card" onclick="openCalc('water')">
+            <div class="menu-icon" style="background: rgba(10, 189, 227, 0.15); color: #0abde3;">💧</div>
+            <div class="menu-text"><h3>Water Intake</h3><p>Daily hydration needs based on activity & climate.</p></div>
+        </div>
+        
+        <div class="menu-card" onclick="openCalc('bf')">
+            <div class="menu-icon" style="background: rgba(254, 202, 87, 0.15); color: #feca57;">📉</div>
+            <div class="menu-text"><h3>Body Fat Estimate</h3><p>Caliper (Skinfold) & Navy method.</p></div>
+        </div>
+
+        <div class="menu-card" onclick="openRoutines()">
+            <div class="menu-icon" style="background: rgba(253, 121, 168, 0.15); color: #fd79a8;">📋</div>
+            <div class="menu-text"><h3>Workout Routines</h3><p>Structured training plans from top athletes.</p></div>
+        </div>
+
+        <div class="menu-card" onclick="openCalc('1rm')">
+            <div class="menu-icon" style="background: rgba(231, 76, 60, 0.15); color: #e74c3c;">🏋️‍♂️</div>
+            <div class="menu-text"><h3>1RM Calculator</h3><p>Calculate your one-rep max and track progress.</p></div>
+        </div>
+
+        <div class="menu-card" onclick="openCalc('log')">
+            <div class="menu-icon" style="background: rgba(155, 89, 182, 0.15); color: #9b59b6;">📝</div>
+            <div class="menu-text"><h3>Workout Log</h3><p>Track standard, giant, drop, and supersets.</p></div>
+        </div>
+
+        <div class="contact-section">
+            <p>Contact the Developer</p>
+            <div class="social-container">
+                <a href="https://www.instagram.com/type01warrior/" target="_blank" class="social-btn" style="background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%); color: white; border: none;">
+                    <svg viewBox="0 0 24 24" fill="white"><path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M12,7.25A4.75,4.75 0 0,1 16.75,12A4.75,4.75 0 0,1 12,16.75A4.75,4.75 0 0,1 7.25,12A4.75,4.75 0 0,1 12,7.25M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M17.25,5.5A1.25,1.25 0 0,1 18.5,6.75A1.25,1.25 0 0,1 17.25,8A1.25,1.25 0 0,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5Z" /></svg>
+                </a>
+                <a href="https://wa.me/919603611435" target="_blank" class="social-btn" style="background: #25D366; color: white; border: none;">
+                    <svg viewBox="0 0 24 24" fill="white"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 13.96C16.31 13.81 15.15 13.24 14.94 13.16C14.73 13.08 14.57 13.04 14.41 13.28C14.25 13.53 13.8 14.11 13.65 14.27C13.5 14.43 13.35 14.46 13.1 14.33C12.86 14.21 12.12 13.96 11.24 13.18C10.54 12.56 10.07 11.79 9.92 11.54C9.77 11.29 9.9 11.18 10.03 11.06C10.14 10.95 10.28 10.78 10.4 10.64C10.53 10.5 10.57 10.39 10.65 10.24C10.73 10.08 10.69 9.95 10.63 9.83C10.57 9.7 10.1 8.53 9.9 8.05C9.71 7.58 9.53 7.65 9.4 7.65C9.26 7.65 9.1 7.65 8.93 7.65Z" /></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="calc-view">
+        
+        <button class="back-btn" id="dynamic-back-btn" onclick="goBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg> <span id="back-btn-text">Back to Menu</span>
+        </button>
+
+        <div id="calc-1rm" class="calc-section" style="padding: 10px;">
+            <h2 class="calc-title" style="margin-left: 5px;">1-Rep Max Calculator</h2>
+            
+            <div class="tab-container" style="margin-bottom: 20px;">
+                <div class="inner-tab active" onclick="switch1rmTab('calc', this)">Calculator</div>
+                <div class="inner-tab" onclick="switch1rmTab('stats', this)">History & Stats</div>
+            </div>
+
+            <div id="1rm-calc-tab" style="display: block; padding: 0 10px;">
+                <div class="form-row">
+                    <div class="form-group"><label>Weight (kg)</label><input type="number" id="1rm-w" class="sync-w" placeholder="e.g. 100"></div>
+                    <div class="form-group"><label>Reps</label><input type="number" id="1rm-r" placeholder="e.g. 5"></div>
+                </div>
+                <div class="form-group">
+                    <label>Exercise</label>
+                    <select id="1rm-ex" style="width:100%; border:none; border-bottom:1px solid var(--border); padding:4px 0 8px 0; outline:none; background:transparent; font-size:15px; font-weight:600; color:var(--text-color);">
+                        <option value="" disabled selected>Select an exercise</option>
+                        <option value="Bench Press">Bench Press</option>
+                        <option value="Back Squat">Back Squat</option>
+                        <option value="Deadlift">Deadlift</option>
+                        <option value="Overhead Press">Overhead Press</option>
+                        <option value="Front Squat">Front Squat</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="calc1RM()">Calculate 1RM</button>
+
+                <div id="res-1rm-view" class="results-area" style="display:none; margin-top:20px;">
+                    <div class="res-primary" id="1rm-val">0 kg</div>
+                    <div class="res-label">Estimated 1-Rep Max</div>
+                    
+                    <div class="res-grid" style="margin-bottom:15px;">
+                        <div class="res-box"><span>Weight Lifted</span><strong id="1rm-vw">0 kg</strong></div>
+                        <div class="res-box"><span>Reps</span><strong id="1rm-vr">0</strong></div>
+                    </div>
+
+                    <div style="text-align: left; background: var(--card-bg); border: var(--border); border-radius: 8px; padding: 15px;">
+                        <div class="percentages-title">Percentages</div>
+                        <div id="1rm-pct-table" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </div>
+
+                    <button class="btn btn-copy" style="margin-top:15px;" onclick="save1RM()">Save to History</button>
+                </div>
+            </div>
+
+            <div id="1rm-stats-tab" style="display: none; padding: 0 10px;">
+                <div id="1rm-history-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                
+                <div id="1rm-chart-view" class="stat-detail-view">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 id="1rm-chart-title" style="font-size: 15px; color: var(--accent);">Exercise</h3>
+                        <button onclick="close1RMChart()" style="background: none; border: none; color: var(--text-color); font-weight: bold; cursor: pointer;">✕ Close</button>
+                    </div>
+                    <div class="chart-container"><canvas id="1rm-chart"></canvas></div>
+                    <button class="btn" style="background: transparent; color: var(--text-color); border: 2px solid var(--border); box-shadow: none;" onclick="openNoteEditor()">Add Note to Latest Entry</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="calc-routines" class="calc-section" style="padding: 10px;">
+            
+            <div id="routine-main">
+                <h2 class="calc-title" style="margin-left: 5px;">Select Author / Program</h2>
+                <div class="menu-list">
+                    <div class="menu-card" onclick="navRoutine('kai')">
+                        <div class="menu-icon" style="background: rgba(254, 202, 87, 0.15);">👑</div>
+                        <div class="menu-text"><h3>Body Part Exercises</h3><p>Legendary high-volume bodybuilding plans.</p></div>
+                    </div>
+                    <div class="menu-card" onclick="navRoutine('jeff-hypertrophy')">
+                        <div class="menu-icon" style="background: rgba(10, 189, 227, 0.15);">🧬</div>
+                        <div class="menu-text"><h3>Hypertrophy</h3><p>Science-based hypertrophy and strength.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="routine-kai" style="display: none;">
+                <h2 class="calc-title" style="margin-left: 5px;">Body Part Exercises</h2>
+                <div class="menu-list">
+                    <div class="menu-card" onclick="navRoutine('v1')">
+                        <div class="menu-icon" style="background: rgba(84, 160, 255, 0.15);">1️⃣</div>
+                        <div class="menu-text"><h3>Version 1.0</h3><p>The foundational high-volume blueprint.</p></div>
+                    </div>
+                    <div class="menu-card" onclick="navRoutine('v2')">
+                        <div class="menu-icon" style="background: rgba(155, 89, 182, 0.15);">2️⃣</div>
+                        <div class="menu-text"><h3>Version 2.0</h3><p>Advanced overload & isolation techniques.</p></div>
+                    </div>
+                    <div class="menu-card" onclick="navRoutine('v3')">
+                        <div class="menu-icon" style="background: rgba(253, 121, 168, 0.15);">3️⃣</div>
+                        <div class="menu-text"><h3>Version 3.0</h3><p>Extreme intensity and volume variations.</p></div>
+                    </div>
+                    <div class="menu-card" onclick="navRoutine('reps1000')">
+                        <div class="menu-icon" style="background: rgba(255, 71, 87, 0.15);">💯</div>
+                        <div class="menu-text"><h3>1000 Reps Program</h3><p>The ultimate endurance and pump test.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="routine-v1" style="display: none;"><h2 class="calc-title">Version 1.0 Workouts</h2><div id="routine-accordion-container-v1"></div></div>
+            <div id="routine-v2" style="display: none;"><h2 class="calc-title">Version 2.0 Workouts</h2><div id="routine-accordion-container-v2"></div></div>
+            <div id="routine-v3" style="display: none;"><h2 class="calc-title">Version 3.0 Workouts</h2><div id="routine-accordion-container-v3"></div></div>
+            <div id="routine-reps1000" style="display: none;"><h2 class="calc-title">1000 Reps Program</h2><div id="routine-accordion-container-reps1000"></div></div>
+            <div id="routine-jeff-hypertrophy" style="display: none;"><h2 class="calc-title">Hypertrophy Series</h2><div id="routine-accordion-container-jeff-hypertrophy"></div></div>
+        </div>
+
+        <div id="calc-log" class="calc-section">
+            <h2 class="calc-title">Workout Log</h2>
+            <p style="font-size: 12px; color: var(--label-color); margin-bottom: 15px;">Smart AI Set Tracking enabled. Standard sets do not require a "Sets" input.</p>
+            <button class="btn" onclick="showLogForm()">+ Add New Entry</button>
+            
+            <div id="log-form" style="display:none; margin-top:20px; background:var(--bg-color); padding:15px; border-radius:10px; border:var(--border);">
+                <div id="log-date" style="font-weight:800; margin-bottom:15px; color:var(--accent); font-size:14px;"></div>
+                <div class="form-group">
+                    <label>Set Type</label>
+                    <select id="log-type" onchange="renderLogInputs()">
+                        <option value="Standard">Standard Set</option>
+                        <option value="Superset">Superset</option>
+                        <option value="Giant Set">Giant Set</option>
+                        <option value="Drop Set">Drop Set</option>
+                    </select>
+                </div>
+                <div id="log-dynamic-inputs" style="margin-top:15px;"></div>
+                <button class="btn btn-copy" style="margin-top:20px;" onclick="saveLogEntry()">Save Entry</button>
+                <button class="btn" style="background:transparent; color:var(--text-color); box-shadow:none; border:1px solid var(--border);" onclick="hideLogForm()">Cancel</button>
+            </div>
+            <div id="log-entries" style="margin-top:25px; display:flex; flex-direction:column; gap:15px;"></div>
+        </div>
+
+        <div id="calc-metrics" class="calc-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid var(--border); padding-bottom:10px;">
+                <h2 class="calc-title" style="margin:0; border:none; padding:0;">Body Metrics</h2>
+                <button style="background:rgba(108,92,231,0.1); color:var(--accent); border:1px solid var(--accent); border-radius:6px; padding:5px 12px; font-weight:bold; font-size:12px; cursor:pointer;" onclick="openCalc('macro')">Next ➔</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Gender</label><select id="met-gen" class="sync-gen"><option value="male">Male</option><option value="female">Female</option></select></div>
+                <div class="form-group"><label>Age</label><input type="number" id="met-age" class="sync-age" placeholder="Yrs"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Weight (kg)</label><input type="number" id="met-w" class="sync-w" placeholder="Kg"></div>
+                <div class="form-group">
+                    <label>Height</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="number" id="met-h1" class="sync-h1" placeholder="cm" style="flex:1;">
+                        <input type="number" id="met-h2" class="sync-h2" placeholder="in" style="flex:1; display:none;">
+                        <select id="met-h-unit" class="sync-h-unit" onchange="onHUnitChange('met')" style="flex:1; padding:14px 6px;">
+                            <option value="cm" selected>cm</option>
+                            <option value="ft_in">ft / in</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Activity Level</label>
+                <select id="met-act">
+                    <option value="1.2">Sedentary (Office job)</option>
+                    <option value="1.375">Light Exercise (1-2 days)</option>
+                    <option value="1.55">Moderate Exercise (3-5 days)</option>
+                    <option value="1.725">Heavy Exercise (6-7 days)</option>
+                    <option value="1.9">Athlete (2x per day)</option>
+                </select>
+            </div>
+            <button class="btn" onclick="runMetrics()">Calculate Metrics</button>
+            <div id="res-metrics" class="results-area" style="display:none;"></div>
+        </div>
+
+        <div id="calc-macro" class="calc-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid var(--border); padding-bottom:10px;">
+                <h2 class="calc-title" style="margin:0; border:none; padding:0;">Macro Calculator</h2>
+                <button style="background:rgba(108,92,231,0.1); color:var(--accent); border:1px solid var(--accent); border-radius:6px; padding:5px 12px; font-weight:bold; font-size:12px; cursor:pointer;" onclick="openCalc('meal')">Next ➔</button>
+            </div>
+            <div class="form-group"><label>Target Daily Calories (TDEE)</label><input type="number" id="mac-cal" placeholder="e.g. 2500"></div>
+            <div class="form-group"><label>Goal</label><select id="mac-goal"><option value="maintain">Maintenance</option><option value="cut">Fat Loss (-500 cal)</option><option value="bulk">Muscle Gain (+500 cal)</option></select></div>
+            <button class="btn" onclick="runMacro()">Calculate Macros</button>
+            <div id="res-macro" class="results-area" style="display:none;"></div>
+        </div>
+
+        <div id="calc-meal" class="calc-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid var(--border); padding-bottom:10px;">
+                <h2 class="calc-title" style="margin:0; border:none; padding:0;">Custom Diet Planner</h2>
+                <button style="background:rgba(108,92,231,0.1); color:var(--accent); border:1px solid var(--accent); border-radius:6px; padding:5px 12px; font-weight:bold; font-size:12px; cursor:pointer;" onclick="openCalc('water')">Next ➔</button>
+            </div>
+            <p style="font-size:12px; color:var(--label-color); margin-bottom:15px;">Calculates exact grams of food to hit your target calories.</p>
+            <div class="form-group"><label>Total Daily Calories Target</label><input type="number" id="dp-cal" placeholder="e.g. 2500"></div>
+            <div class="form-group">
+                <label>Meals per Day</label>
+                <select id="dp-count">
+                    <option value="3">3 Meals</option>
+                    <option value="4" selected>4 Meals</option>
+                    <option value="5">5 Meals</option>
+                    <option value="6">6 Meals</option>
+                </select>
+            </div>
+            <button class="btn" onclick="openFoodModal()">🥗 Select Foods & Generate Plan</button>
+            <div id="res-diet-plan" style="display:none; margin-top:20px;">
+                <button class="btn btn-copy" id="copyBtn" onclick="copyDiet()">Copy Diet Plan</button>
+                <div id="diet-cards"></div>
+            </div>
+        </div>
+
+        <div id="calc-bf" class="calc-section">
+            <h2 class="calc-title">Body Fat Estimate</h2>
+
+            <div class="tab-container">
+                <div class="inner-tab active" onclick="switchBFTab('caliper', this)">📏 Caliper (JP3)</div>
+                <div class="inner-tab" onclick="switchBFTab('navy', this)">⚓ Navy Method</div>
+            </div>
+
+            <div id="bf-tab-caliper">
+                <p style="font-size:12px; color:var(--label-color); margin-bottom:15px;">Uses Jackson-Pollock 3-site formula. Enter your pinch measurements in INCHES.</p>
+                <div class="form-row">
+                    <div class="form-group"><label>Gender</label><select id="bf-gen" class="sync-gen" onchange="updateCaliperLabels()"><option value="male">Male</option><option value="female">Female</option></select></div>
+                    <div class="form-group"><label>Age</label><input type="number" id="bf-age" class="sync-age" placeholder="Yrs"></div>
+                </div>
+                <label style="margin-top: 10px;">Measurements (Inches)</label>
+                <div class="form-row" style="margin-top: 5px;">
+                    <div class="form-group"><label id="label-site1">Chest</label><input type="number" id="bf-s1" placeholder="in"></div>
+                    <div class="form-group"><label id="label-site2">Abdominal</label><input type="number" id="bf-s2" placeholder="in"></div>
+                    <div class="form-group"><label id="label-site3">Thigh</label><input type="number" id="bf-s3" placeholder="in"></div>
+                </div>
+                <button class="btn" onclick="runBF()">Calculate Body Fat</button>
+                <div id="res-bf" class="results-area" style="display:none;"></div>
+            </div>
+
+            <div id="bf-tab-navy" style="display:none;">
+                <p style="font-size:12px; color:var(--label-color); margin-bottom:15px;">US Navy circumference method. Accurate to ±1.5% body fat.</p>
+
+                <div class="form-row">
+                    <div class="form-group"><label>Age</label><input type="number" id="navy-age" class="sync-age" placeholder="Yrs"></div>
+                    <div class="form-group"><label>Sex</label>
+                        <select id="navy-sex" class="sync-gen" onchange="toggleNavyHip()">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Height</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="number" id="navy-h1" class="sync-h1" placeholder="cm" style="flex:1;">
+                        <input type="number" id="navy-h2" class="sync-h2" placeholder="in" style="flex:1; display:none;">
+                        <select id="navy-h-unit" class="sync-h-unit" onchange="onHUnitChange('navy')" style="flex:1; padding:14px 6px;">
+                            <option value="cm" selected>cm</option>
+                            <option value="ft_in">ft / in</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Neck Circumference</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="number" id="navy-neck1" placeholder="15" style="flex:1;">
+                        <input type="number" id="navy-neck2" placeholder="" style="flex:1; display:none;">
+                        <select id="navy-neck-unit" onchange="onNavyUnitChange('neck')" style="flex:1; padding:14px 6px;">
+                            <option value="cm">centimeters (cm)</option>
+                            <option value="in" selected>inches (in)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Waist Circumference <span style="font-size:10px; color:var(--label-color);">(at navel)</span></label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="number" id="navy-waist1" placeholder="34" style="flex:1;">
+                        <input type="number" id="navy-waist2" placeholder="" style="flex:1; display:none;">
+                        <select id="navy-waist-unit" onchange="onNavyUnitChange('waist')" style="flex:1; padding:14px 6px;">
+                            <option value="cm">centimeters (cm)</option>
+                            <option value="in" selected>inches (in)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="navy-hip-group" style="display:none;">
+                    <label>Hip Circumference <span style="font-size:10px; color:var(--label-color);">(females only)</span></label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="number" id="navy-hip1" placeholder="37" style="flex:1;">
+                        <input type="number" id="navy-hip2" placeholder="" style="flex:1; display:none;">
+                        <select id="navy-hip-unit" onchange="onNavyUnitChange('hip')" style="flex:1; padding:14px 6px;">
+                            <option value="cm">centimeters (cm)</option>
+                            <option value="in" selected>inches (in)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="runNavyBF()">Calculate Body Fat</button>
+                <div id="res-navy-bf" class="results-area" style="display:none;"></div>
+            </div>
+        </div>
+
+        <div id="calc-water" class="calc-section">
+            <h2 class="calc-title">Water Intake</h2>
+            <div class="form-row"><div class="form-group"><label>Weight (kg)</label><input type="number" id="wat-w" class="sync-w" placeholder="Kg"></div><div class="form-group"><label>Activity</label><select id="wat-act"><option value="0">Rest Day</option><option value="0.5">Active / Workout</option></select></div></div>
+            <div class="form-group"><label>Climate</label><select id="wat-clim"><option value="0">Normal</option><option value="0.5">Hot / Summer</option></select></div>
+            <button class="btn" onclick="runWater()">Calculate</button>
+            <div id="res-water" class="results-area" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div class="note-overlay" id="note-overlay">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size:18px;">Edit Note</h3>
+            <button onclick="closeNoteEditor()" style="background:none; border:none; color:var(--text-color); font-size:20px;">✕</button>
+        </div>
+        <textarea id="note-input" class="note-textarea" placeholder="Type your notes here..."></textarea>
+        <button class="btn" style="margin-top:20px;" onclick="saveNote()">Save Note</button>
+    </div>
+
+    <div class="settings-overlay" id="settings-view">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <h3 style="font-size:18px;">Settings</h3>
+            <button onclick="closeSettings()" style="background:none; border:none; color:var(--text-color); font-size:20px;">✕</button>
+        </div>
+        <div style="background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+            <h4 style="margin-bottom: 10px; color: var(--text-color);">Data Management</h4>
+            <p style="font-size: 13px; color: var(--label-color); margin-bottom: 15px;">Clear all your saved history and preferences from your device.</p>
+            <button class="btn" style="background: rgba(255,0,0,0.1); color: red; box-shadow: none;" onclick="resetAllData()">Reset All Data</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="food-modal" onclick="handleModalOutsideClick(event)">
+        <div class="modal-sheet">
+            <div class="modal-header">
+                <h3>🥗 Select Your Available Foods</h3>
+                <button class="modal-close" onclick="closeFoodModal()">✕</button>
+            </div>
+            <div class="modal-body" id="food-modal-body">
+                </div>
+            <div class="modal-footer">
+                <div id="add-food-form" style="display:none; background:var(--bg-color); border-radius:10px; padding:15px; margin-bottom:12px; border:var(--border);">
+                    <div style="font-size:12px; font-weight:800; color:var(--accent); margin-bottom:10px; text-transform:uppercase;">Add Custom Food</div>
+                    <div class="form-group" style="margin-bottom:8px;"><input type="text" id="cf-name" placeholder="Food name (e.g. Dahi Rice)" style="font-size:13px; padding:10px;"></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                        <input type="number" id="cf-kcal" placeholder="kcal/100g" style="padding:10px; font-size:13px; background:var(--card-bg); border:var(--border); border-radius:8px; color:var(--text-color);">
+                        <select id="cf-type" style="padding:10px; font-size:13px; background:var(--card-bg); border:var(--border); border-radius:8px; color:var(--text-color);">
+                            <option value="protein">Protein</option>
+                            <option value="carb">Carb</option>
+                            <option value="fat">Fat</option>
+                            <option value="veg">Vegetable</option>
+                        </select>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:10px;">
+                        <input type="number" id="cf-p" placeholder="Protein g" style="padding:10px; font-size:12px; background:var(--card-bg); border:var(--border); border-radius:8px; color:var(--text-color);">
+                        <input type="number" id="cf-c" placeholder="Carbs g" style="padding:10px; font-size:12px; background:var(--card-bg); border:var(--border); border-radius:8px; color:var(--text-color);">
+                        <input type="number" id="cf-f" placeholder="Fat g" style="padding:10px; font-size:12px; background:var(--card-bg); border:var(--border); border-radius:8px; color:var(--text-color);">
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="saveCustomFood()" style="flex:1; padding:10px; background:var(--accent); color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px;">Save Food</button>
+                        <button onclick="document.getElementById('add-food-form').style.display='none'" style="padding:10px 14px; background:var(--bg-color); color:var(--text-color); border:var(--border); border-radius:8px; font-weight:700; cursor:pointer; font-size:13px;">Cancel</button>
+                    </div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="showAddFoodForm()" style="flex:0; padding:16px 14px; background:var(--bg-color); color:var(--accent); border:1px solid var(--accent); border-radius:10px; font-weight:700; cursor:pointer; font-size:13px; white-space:nowrap;">+ Add Food</button>
+                    <button class="btn" style="flex:1; margin-top:0;" onclick="generateFromSelectedFoods()">Generate Diet Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ============================================================
+    // FIREBASE CONFIGURATION — your real values are already filled in
+    // ============================================================
+    const firebaseConfig = {
+        apiKey:            "AIzaSyCIeYRNKgstmLsdAyQ5lQY_E0ygfFd2fac",
+        authDomain:        "fitness-toolkit-pro-317a6.firebaseapp.com",
+        projectId:         "fitness-toolkit-pro-317a6",
+        storageBucket:     "fitness-toolkit-pro-317a6.firebasestorage.app",
+        messagingSenderId: "320104015157",
+        appId:             "1:320104015157:web:d0905114138a09907b587c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+    let currentUser = null;
+
+    // ── Platform detection ──
+    const isAndroidWebView = /wv/.test(navigator.userAgent) || 
+                             /Android/.test(navigator.userAgent) && /Version\/\d/.test(navigator.userAgent) ||
+                             typeof Android !== 'undefined';
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    // Hide Google button on Android WebView (it won't work there)
+    document.addEventListener('DOMContentLoaded', () => {
+        const note = document.getElementById('platform-note');
+        if (isAndroidWebView) {
+            document.querySelectorAll('.google-btn').forEach(el => el.style.display = 'none');
+            if (note) note.textContent = '📱 Android App — Email & Phone login available';
+        } else if (isMobile) {
+            if (note) note.textContent = '📱 Mobile Browser';
+        } else {
+            if (note) note.textContent = '🖥️ All sign-in methods available';
+        }
+    });
+
+    // ---- Auth UI ----
+    function switchAuthTab(tab) {
+        ['login','signup'].forEach(t => {
+            document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+            document.getElementById('form-'+t).style.display = t===tab ? 'block' : 'none';
+        });
+        document.getElementById('auth-error').style.display   = 'none';
+        document.getElementById('auth-success').style.display = 'none';
+    }
+    function showAuthError(msg) {
+        const e = document.getElementById('auth-error');
+        e.textContent = msg; e.style.display = 'block';
+        document.getElementById('auth-success').style.display = 'none';
+    }
+    function showAuthSuccess(msg) {
+        const e = document.getElementById('auth-success');
+        e.textContent = msg; e.style.display = 'block';
+        document.getElementById('auth-error').style.display = 'none';
+    }
+    function setLoading(id, on, label) {
+        const b = document.getElementById(id);
+        if (!b) return;
+        b.disabled = on; b.textContent = on ? 'Please wait…' : label;
+    }
+
+    // ---- Email Login ----
+    async function doLogin() {
+        const email = document.getElementById('login-email').value.trim();
+        const pass  = document.getElementById('login-password').value;
+        if (!email || !pass) return showAuthError('Please fill in all fields.');
+        setLoading('btn-login', true, 'Sign In');
+        try {
+            await auth.signInWithEmailAndPassword(email, pass);
+        } catch(e) {
+            console.error('Login error:', e.code, e.message);
+            showAuthError(authErr(e.code, e.message));
+            setLoading('btn-login', false, 'Sign In');
+        }
+    }
+
+    // ---- Email Signup ----
+    async function doSignup() {
+        const name  = document.getElementById('signup-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const pass  = document.getElementById('signup-password').value;
+        if (!name||!email||!pass) return showAuthError('Please fill in all fields.');
+        if (pass.length < 6) return showAuthError('Password must be at least 6 characters.');
+        setLoading('btn-signup', true, 'Create Account');
+        try {
+            const c = await auth.createUserWithEmailAndPassword(email, pass);
+            try { await c.user.updateProfile({ displayName: name }); } catch(e2) {}
+            try {
+                await db.collection('users').doc(c.user.uid).set({
+                    name, email, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch(e2) { console.warn('Firestore write failed (non-critical):', e2); }
+            // Auth state change will handle showing the app
+        } catch(e) {
+            console.error('Signup error:', e.code, e.message);
+            showAuthError(authErr(e.code, e.message));
+            setLoading('btn-signup', false, 'Create Account');
+        }
+    }
+
+    // ---- Google Sign-In ----
+    async function doGoogleSignIn() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        try {
+            let result;
+            if (isMobile || isAndroidWebView) {
+                // Use redirect on mobile — more reliable than popup
+                await auth.signInWithRedirect(provider);
+                return; // page will reload after redirect
+            } else {
+                result = await auth.signInWithPopup(provider);
+            }
+            if (result) {
+                try {
+                    const docRef = db.collection('users').doc(result.user.uid);
+                    const doc = await docRef.get();
+                    if (!doc.exists) {
+                        await docRef.set({ name: result.user.displayName, email: result.user.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    }
+                } catch(e2) { console.warn('Firestore (non-critical):', e2); }
+            }
+        } catch(e) {
+            console.error('Google error:', e.code, e.message);
+            if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+                showAuthError(authErr(e.code, e.message));
+            }
+        }
+    }
+
+    // Handle redirect result on page load (for mobile Google sign-in)
+    auth.getRedirectResult().then(async (result) => {
+        if (result && result.user) {
+            try {
+                const docRef = db.collection('users').doc(result.user.uid);
+                const doc = await docRef.get();
+                if (!doc.exists) {
+                    await docRef.set({ name: result.user.displayName, email: result.user.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                }
+            } catch(e) { console.warn('Firestore (non-critical):', e); }
+        }
+    }).catch(e => {
+        if (e.code && e.code !== 'auth/no-auth-event') {
+            console.warn('Redirect result error:', e.code);
+        }
+    });
+
+    // ---- Phone Sign-In (inline in tabs) ----
+    const rcaps = {};
+    const confirmResults = {};
+
+    function showPhoneInTab(tab) {
+        document.getElementById('phone-in-'+tab).style.display = 'block';
+        setTimeout(() => initRecaptchaFor(tab), 300);
+    }
+    function hidePhoneInTab(tab) {
+        document.getElementById('phone-in-'+tab).style.display = 'none';
+    }
+
+    function initRecaptchaFor(tab) {
+        if (rcaps[tab]) return;
+        const container = document.getElementById('recaptcha-'+tab);
+        if (!container) return;
+        container.innerHTML = ''; // clear first
+        try {
+            rcaps[tab] = new firebase.auth.RecaptchaVerifier('recaptcha-'+tab, {
+                size: 'normal', // visible checkbox - most reliable on mobile
+                callback: (token) => {
+                    console.log('reCAPTCHA passed for', tab);
+                },
+                'expired-callback': () => {
+                    showAuthError('Verification expired. Please tick the checkbox again.');
+                    try { rcaps[tab].render(); } catch(e) {}
+                }
+            });
+            rcaps[tab].render().then(() => {
+                console.log('reCAPTCHA rendered for', tab);
+            }).catch(e => {
+                console.error('reCAPTCHA render failed:', e);
+                showAuthError('reCAPTCHA failed to load. Check your internet connection.');
+            });
+        } catch(e) {
+            console.error('reCAPTCHA init error:', e);
+        }
+    }
+
+    async function doPhoneSend(tab) {
+        const rawNumber = document.getElementById(tab+'-phone-number').value.trim().replace(/\D/g,'');
+        if (!rawNumber || rawNumber.length < 10) {
+            return showAuthError('Please enter a valid 10-digit phone number.');
+        }
+        const phone = '+91' + rawNumber.slice(-10);
+
+        // Show number in step 2
+        const displayEl = document.getElementById(tab+'-phone-display');
+        if (displayEl) displayEl.textContent = rawNumber.slice(-10);
+
+        if (!rcaps[tab]) {
+            return showAuthError('Please wait for the verification box to load, then tick it.');
+        }
+
+        setLoading('btn-'+tab+'-phone-send', true, 'Send OTP');
+        try {
+            confirmResults[tab] = await auth.signInWithPhoneNumber(phone, rcaps[tab]);
+            document.getElementById('phone-'+tab+'-step1').style.display = 'none';
+            document.getElementById('phone-'+tab+'-step2').style.display = 'block';
+            document.getElementById('auth-error').style.display = 'none';
+            showAuthSuccess('OTP sent! Check your SMS messages ✅');
+        } catch(e) {
+            console.error('Phone send error:', e.code, e.message);
+            showAuthError(authErr(e.code, e.message));
+            setLoading('btn-'+tab+'-phone-send', false, 'Send OTP');
+            // Reset recaptcha
+            try { if (rcaps[tab]) rcaps[tab].clear(); } catch(e2) {}
+            rcaps[tab] = null;
+            document.getElementById('recaptcha-'+tab).innerHTML = '';
+            setTimeout(() => initRecaptchaFor(tab), 500);
+        }
+    }
+
+    async function doPhoneVerify(tab) {
+        const code = document.getElementById(tab+'-phone-otp').value.trim().replace(/\D/g,'');
+        if (!code || code.length !== 6) return showAuthError('Please enter the complete 6-digit OTP.');
+        setLoading('btn-'+tab+'-phone-verify', true, 'Verify & Sign In');
+        try {
+            const result = await confirmResults[tab].confirm(code);
+            try {
+                const docRef = db.collection('users').doc(result.user.uid);
+                const doc = await docRef.get();
+                if (!doc.exists) {
+                    await docRef.set({ name: result.user.phoneNumber, email: '', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                }
+            } catch(e2) { console.warn('Firestore (non-critical):', e2); }
+        } catch(e) {
+            console.error('Phone verify error:', e.code, e.message);
+            showAuthError('Invalid OTP. Please check the code and try again.');
+            setLoading('btn-'+tab+'-phone-verify', false, 'Verify & Sign In');
+        }
+    }
+
+    function resetPhone(tab) {
+        document.getElementById('phone-'+tab+'-step1').style.display = 'block';
+        document.getElementById('phone-'+tab+'-step2').style.display = 'none';
+        document.getElementById(tab+'-phone-otp').value = '';
+        document.getElementById('auth-error').style.display = 'none';
+        document.getElementById('auth-success').style.display = 'none';
+        try { if (rcaps[tab]) rcaps[tab].clear(); } catch(e) {}
+        rcaps[tab] = null;
+        document.getElementById('recaptcha-'+tab).innerHTML = '';
+        setTimeout(() => initRecaptchaFor(tab), 300);
+    }
+
+    // ---- Logout ----
+    async function doLogout() {
+        if (confirm('Sign out of Fitness Toolkit Pro?')) await auth.signOut();
+    }
+
+    // ---- Forgot Password ----
+    async function doForgotPassword() {
+        const email = document.getElementById('login-email').value.trim();
+        if (!email) return showAuthError('Enter your email above first.');
+        try {
+            await auth.sendPasswordResetEmail(email);
+            showAuthSuccess('✅ Reset email sent! Check your inbox.');
+        } catch(e) { showAuthError(authErr(e.code, e.message)); }
+    }
+
+    function authErr(code, msg) {
+        const map = {
+            'auth/user-not-found':        'No account found with this email.',
+            'auth/wrong-password':         'Incorrect password. Please try again.',
+            'auth/invalid-credential':     'Invalid email or password.',
+            'auth/email-already-in-use':   'An account with this email already exists.',
+            'auth/weak-password':          'Password must be at least 6 characters.',
+            'auth/invalid-email':          'Please enter a valid email address.',
+            'auth/too-many-requests':      'Too many attempts. Please try again later.',
+            'auth/invalid-phone-number':   'Invalid phone number. Use format: +91XXXXXXXXXX',
+            'auth/missing-phone-number':   'Please enter your phone number.',
+            'auth/quota-exceeded':         'SMS quota exceeded. Try email or Google login.',
+            'auth/operation-not-allowed':  'This sign-in method is not enabled. Please contact support.',
+            'auth/network-request-failed': 'Network error. Check your internet connection.',
+            'auth/popup-blocked':          'Popup was blocked. Please allow popups for this site.',
+            'auth/unauthorized-domain':    'This domain is not authorized. Go to Firebase → Authentication → Settings → Authorized Domains and add your site URL.',
+            'auth/internal-error':         'Firebase internal error. Make sure your domain is authorized and try again.',
+        };
+        return map[code] || ('Error: ' + (code || msg || 'Unknown error. Please try again.'));
+    }
+
+    // ---- Auth state ----
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            currentUser = user;
+            const initial = (user.displayName || user.email || 'U')[0].toUpperCase();
+            document.getElementById('user-avatar-btn').textContent = initial;
+            document.getElementById('dropdown-username').textContent = '👤 ' + (user.displayName || user.email);
+            document.getElementById('auth-overlay').style.display = 'none';
+            await loadUserData();
+        } else {
+            currentUser = null;
+            document.getElementById('auth-overlay').style.display = 'flex';
+        }
+    });
+
+    // ---- Firestore data layer ----
+    function showSync() {
+        const el = document.getElementById('sync-indicator');
+        el.classList.add('show');
+        clearTimeout(window._syncTimer);
+        window._syncTimer = setTimeout(() => el.classList.remove('show'), 2000);
+    }
+    async function loadUserData() {
+        if (!currentUser) return;
+        try {
+            const doc = await db.collection('users').doc(currentUser.uid).collection('appData').doc('main').get();
+            if (doc.exists) {
+                const d = doc.data();
+                history1RM  = d.history1RM  || [];
+                workoutLogs = d.workoutLogs || [];
+                customFoods = d.customFoods || [];
+            }
+        } catch(e) { console.warn('Load error:', e); }
+    }
+    async function saveUserData() {
+        if (!currentUser) return;
+        showSync();
+        try {
+            await db.collection('users').doc(currentUser.uid).collection('appData').doc('main').set({
+                history1RM, workoutLogs, customFoods,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch(e) { console.warn('Save error:', e); }
+    }
+    let _saveTimeout = null;
+    function queueSave() { clearTimeout(_saveTimeout); _saveTimeout = setTimeout(saveUserData, 800); }
+
+    // Enter key on auth forms
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        const ov = document.getElementById('auth-overlay');
+        if (!ov || ov.style.display === 'none') return;
+        document.getElementById('tab-login').classList.contains('active') ? doLogin() : doSignup();
+    });
+</script>
+
+<script>
+    // ---- close dropdown on outside click ----
+    window._dropdownInit = true;
+    // --- Theme Logic ---
+    function toggleTheme() {
+        const body = document.body;
+        const icon = document.getElementById('theme-icon');
+        if (body.getAttribute('data-theme') === 'light') {
+            body.setAttribute('data-theme', 'dark');
+            icon.innerHTML = `<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`;
+            localStorage.setItem('theme', 'dark');
+        } else {
+            body.setAttribute('data-theme', 'light');
+            icon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // --- Dropdown & Settings Logic ---
+    function toggleDropdown() {
+        document.getElementById('dropdown-menu').classList.toggle('show');
+    }
+    
+    window.onclick = function(event) {
+        if (!event.target.closest('#user-avatar-btn') && !event.target.closest('#dropdown-menu')) {
+            document.getElementById('dropdown-menu').classList.remove('show');
+        }
+    }
+
+    function openSettings() {
+        document.getElementById('settings-view').style.display = 'flex';
+        document.getElementById('dropdown-menu').classList.remove('show');
+    }
+    function closeSettings() {
+        document.getElementById('settings-view').style.display = 'none';
+    }
+    function resetAllData() {
+        if (confirm("DANGER! This will permanently delete all your 1RM history and Workout Logs. Proceed?")) {
+            history1RM = []; workoutLogs = []; customFoods = [];
+            saveUserData();
+            render1RMHistory(); renderLogs(); closeSettings();
+            alert("All data reset successfully.");
+        }
+    }
+
+    // --- Core Navigation with History API ---
+    window.addEventListener('load', () => {
+        history.replaceState({page: 'home'}, '');
+    });
+
+    window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.page === 'calc') {
+            document.getElementById('hub-view').style.display = 'none';
+            document.getElementById('calc-view').style.display = 'flex';
+            document.querySelectorAll('.calc-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('calc-' + e.state.id).classList.add('active');
+            if(e.state.id === 'routines') navRoutineUI('main');
+            if(e.state.id === 'log') renderLogs();
+            if(e.state.id === '1rm') render1RMHistory();
+        } else if (e.state && e.state.page === 'routine') {
+            document.getElementById('hub-view').style.display = 'none';
+            document.getElementById('calc-view').style.display = 'flex';
+            document.querySelectorAll('.calc-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('calc-routines').classList.add('active');
+            navRoutineUI(e.state.view);
+        } else {
+            document.getElementById('calc-view').style.display = 'none';
+            document.getElementById('hub-view').style.display = 'flex';
+        }
+    });
+
+    function goBack() {
+        history.back();
+    }
+
+    function openCalc(id) {
+        document.getElementById('hub-view').style.display = 'none';
+        document.getElementById('calc-view').style.display = 'flex';
+        document.querySelectorAll('.calc-section').forEach(el => el.classList.remove('active'));
+        document.getElementById('calc-' + id).classList.add('active');
+        
+        history.pushState({page: 'calc', id: id}, '');
+        document.getElementById('back-btn-text').innerText = 'Back to Menu';
+
+        if(id === 'log') renderLogs(); 
+        if(id === '1rm') render1RMHistory();
+    }
+
+    function goHome() {
+        document.getElementById('calc-view').style.display = 'none';
+        document.getElementById('hub-view').style.display = 'flex';
+    }
+
+    // ================= 1RM CALCULATOR LOGIC =================
+    function switch1rmTab(tab, el) {
+        document.querySelectorAll('#calc-1rm .inner-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('1rm-calc-tab').style.display = 'none';
+        document.getElementById('1rm-stats-tab').style.display = 'none';
+        if(tab === 'calc') document.getElementById('1rm-calc-tab').style.display = 'block';
+        if(tab === 'stats') {
+            document.getElementById('1rm-stats-tab').style.display = 'block';
+            render1RMHistory();
+        }
+    }
+
+    let current1RMCalc = null;
+    let history1RM = [];
+    let chart1RM = null;
+
+    function calc1RM() {
+        let w = parseFloat(document.getElementById('1rm-w').value);
+        let r = parseFloat(document.getElementById('1rm-r').value);
+        let ex = document.getElementById('1rm-ex').value;
+
+        if(!w || !r || !ex) return alert("Please fill weight, reps, and select an exercise.");
+        if(r >= 37) return alert("Reps must be less than 37 for accurate calculation.");
+
+        let max = Math.round(w * (36 / (37 - r)));
+        
+        document.getElementById('1rm-val').innerText = max + ' kg';
+        document.getElementById('1rm-vw').innerText = w + ' kg';
+        document.getElementById('1rm-vr').innerText = r;
+
+        current1RMCalc = { date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}), ex: ex, w: w, r: r, max: max, note: "" };
+
+        let pctTable = document.getElementById('1rm-pct-table');
+        pctTable.innerHTML = '';
+        const pcts = [ {p: 100, r: 1}, {p: 95, r: 2}, {p: 90, r: 4}, {p: 85, r: 6}, {p: 80, r: 8}, {p: 75, r: 10}, {p: 70, r: 12} ];
+        
+        pcts.forEach(pct => {
+            let cw = Math.floor(max * (pct.p / 100));
+            pctTable.innerHTML += `<div class="pct-row"><span>${pct.p}%</span><span style="font-weight:bold;">${cw} kg</span><span style="color:var(--label-color);">${pct.r} Reps</span></div>`;
+        });
+
+        document.getElementById('res-1rm-view').style.display = 'block';
+    }
+
+    function save1RM() {
+        if(!current1RMCalc) return;
+        history1RM.unshift(current1RMCalc);
+        queueSave();
+        alert("Saved to History!");
+        current1RMCalc = null;
+        document.getElementById('res-1rm-view').style.display = 'none';
+        document.getElementById('1rm-w').value = '';
+        document.getElementById('1rm-r').value = '';
+        document.getElementById('1rm-ex').value = '';
+    }
+
+    function render1RMHistory() {
+        let list = document.getElementById('1rm-history-list');
+        list.innerHTML = '';
+        if(history1RM.length === 0) {
+            list.innerHTML = '<p style="font-size:13px; color:var(--label-color); text-align:center;">No history yet. Calculate to save.</p>';
+            return;
+        }
+
+        let uniqueExercises = [...new Set(history1RM.map(item => item.ex))];
+
+        uniqueExercises.forEach(ex => {
+            let exHistory = history1RM.filter(i => i.ex === ex);
+            let latest = exHistory[0];
+
+            list.innerHTML += `
+                <div class="stat-item" onclick="show1RMChart('${ex}')">
+                    <div style="flex:1;">
+                        <div style="font-weight:800; font-size:15px; color:var(--text-color);">${ex}</div>
+                        <div style="font-size:11px; color:var(--label-color); margin-top:3px;">${latest.date} • ${latest.w}kg x ${latest.r} reps</div>
+                    </div>
+                    <div style="font-size:22px; font-weight:800; color:var(--accent);">${latest.max} <span style="font-size:10px;">kg</span></div>
+                    <div style="margin-left: 10px; color: var(--label-color); font-size:18px;">›</div>
+                </div>
+            `;
+        });
+    }
+
+    let activeChartExercise = "";
+
+    function show1RMChart(ex) {
+        activeChartExercise = ex;
+        document.getElementById('1rm-history-list').style.display = 'none';
+        document.getElementById('1rm-chart-view').style.display = 'block';
+        document.getElementById('1rm-chart-title').innerText = ex + " Progress";
+
+        let exHistory = history1RM.filter(i => i.ex === ex).reverse(); 
+        let labels = exHistory.map(i => i.date);
+        let data = exHistory.map(i => i.max);
+
+        let ctx = document.getElementById('1rm-chart').getContext('2d');
+        if(chart1RM) chart1RM.destroy();
+
+        chart1RM = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '1RM (kg)',
+                    data: data,
+                    borderColor: '#6c5ce7',
+                    backgroundColor: 'rgba(108, 92, 231, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#6c5ce7',
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#636e72', font: {family: 'Lexend', size: 10} } },
+                    y: { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { color: '#636e72', font: {family: 'Lexend', size: 10} } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    function close1RMChart() {
+        document.getElementById('1rm-chart-view').style.display = 'none';
+        document.getElementById('1rm-history-list').style.display = 'flex';
+    }
+
+    // 1RM Notes Logic
+    function openNoteEditor() {
+        let exIndex = history1RM.findIndex(i => i.ex === activeChartExercise);
+        if(exIndex !== -1) {
+            document.getElementById('note-input').value = history1RM[exIndex].note || "";
+            document.getElementById('note-overlay').style.display = 'flex';
+        }
+    }
+
+    function closeNoteEditor() {
+        document.getElementById('note-overlay').style.display = 'none';
+    }
+
+    function saveNote() {
+        let exIndex = history1RM.findIndex(i => i.ex === activeChartExercise);
+        if(exIndex !== -1) {
+            history1RM[exIndex].note = document.getElementById('note-input').value;
+            queueSave();
+            alert("Note Saved!");
+            closeNoteEditor();
+        }
+    }
+
+    function clear1RMHistory() {
+        if(confirm("Are you sure you want to clear all 1RM history?")) {
+            history1RM = [];
+            queueSave();
+            render1RMHistory();
+            close1RMChart();
+        }
+    }
+
+    // ================= WORKOUT LOG LOGIC =================
+    let workoutLogs = [];
+
+    function showLogForm() {
+        document.getElementById('log-form').style.display = 'block';
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+        document.getElementById('log-date').innerText = now.toLocaleDateString('en-US', options);
+        renderLogInputs();
+    }
+
+    function hideLogForm() {
+        document.getElementById('log-form').style.display = 'none';
+    }
+
+    function getExerciseRowHtml(index, title, showSets = false) {
+        let setsHtml = showSets ? `<div class="form-group"><input type="number" class="ex-s" placeholder="Sets"></div>` : '';
+        return `
+            <div class="log-ex-row" data-index="${index}" style="margin-bottom:15px; padding-bottom:10px; border-bottom:1px dashed var(--border);">
+                <div style="font-weight:700; font-size:13px; margin-bottom:8px; color:var(--text-color);">${title}</div>
+                <div class="form-group"><input type="text" class="ex-name" placeholder="Exercise Name"></div>
+                <div class="form-row" style="margin-bottom:0;">
+                    <div class="form-group"><input type="number" class="ex-w" placeholder="Wt (kg)"></div>
+                    ${setsHtml}
+                    <div class="form-group"><input type="text" class="ex-r" placeholder="Reps"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderLogInputs() {
+        const type = document.getElementById('log-type').value;
+        const container = document.getElementById('log-dynamic-inputs');
+        let html = '';
+
+        if (type === 'Standard') {
+            html = getExerciseRowHtml(1, 'Exercise', false);
+        } else if (type === 'Drop Set') {
+            html = getExerciseRowHtml(1, 'Drop Set Exercise', true); 
+        } else if (type === 'Superset') {
+            html = getExerciseRowHtml(1, 'Exercise 1', false) + getExerciseRowHtml(2, 'Exercise 2', false);
+        } else if (type === 'Giant Set') {
+            html = `<div id="giant-container">` + getExerciseRowHtml(1, 'Exercise 1', false) + getExerciseRowHtml(2, 'Exercise 2', false) + `</div>`;
+            html += `<button type="button" style="background:var(--icon-bg); color:var(--accent); border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:12px; width:100%;" onclick="addGiantRow()">+ Add More</button>`;
+        }
+
+        container.innerHTML = html;
+    }
+
+    function addGiantRow() {
+        const container = document.getElementById('giant-container');
+        const count = container.querySelectorAll('.log-ex-row').length + 1;
+        container.insertAdjacentHTML('beforeend', getExerciseRowHtml(count, 'Exercise ' + count, false));
+    }
+
+    function saveLogEntry() {
+        const type = document.getElementById('log-type').value;
+        const date = document.getElementById('log-date').innerText;
+        const rows = document.querySelectorAll('.log-ex-row');
+        let exercises = [];
+        
+        rows.forEach(row => {
+            let n = row.querySelector('.ex-name').value.trim();
+            let w = row.querySelector('.ex-w').value;
+            let sEl = row.querySelector('.ex-s');
+            let s = sEl ? sEl.value : null;
+            let r = row.querySelector('.ex-r').value;
+            if(n) exercises.push({ n, w, s, r });
+        });
+
+        if(exercises.length === 0) return alert("Please enter at least one exercise.");
+
+        workoutLogs.unshift({ id: Date.now(), date, type, exercises });
+        queueSave();
+        hideLogForm();
+        renderLogs();
+    }
+
+    function getTotalSets(exName) {
+        let count = 0;
+        let query = exName.toLowerCase();
+        workoutLogs.forEach(log => {
+            log.exercises.forEach(ex => {
+                if(ex.n.toLowerCase() === query) {
+                    count += (ex.s ? parseInt(ex.s) : 1);
+                }
+            });
+        });
+        return count;
+    }
+
+    function renderLogs() {
+        const container = document.getElementById('log-entries');
+        if(workoutLogs.length === 0) {
+            container.innerHTML = '<p style="font-size:13px; color:var(--label-color); text-align:center;">No logs yet. Click above to add your first entry.</p>';
+            return;
+        }
+        let html = '';
+        workoutLogs.forEach((log, index) => {
+            let exHtml = '';
+            log.exercises.forEach(ex => {
+                let totalAI = getTotalSets(ex.n); 
+                
+                let details = `${ex.w ? ex.w+'kg' : 'BW'}`;
+                if(ex.s) details += ` | ${ex.s} Drops/Sets`;
+                if(ex.r) details += ` | ${ex.r} Reps`;
+
+                exHtml += `<div style="font-size:13px; margin-top:10px; border-bottom:1px solid rgba(128,128,128,0.1); padding-bottom:8px; color:var(--text-color);">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                <b>${ex.n}</b>
+                                <span style="background:var(--icon-bg); color:var(--accent); font-size:10px; padding:2px 6px; border-radius:4px; font-weight:bold;">${totalAI} Sets Total</span>
+                            </div>
+                            <div style="color:var(--label-color); font-size:12px; font-weight:600;">${details}</div>
+                           </div>`;
+            });
+            
+            let typeBadge = log.type.toUpperCase();
+            html += `
+                <div class="meal-box" style="border-left-color: var(--accent); position:relative; margin-bottom:0;">
+                    <button onclick="deleteLog(${index})" style="position:absolute; top:15px; right:15px; background:rgba(255,0,0,0.1); border:none; color:red; cursor:pointer; font-weight:bold; border-radius:5px; padding:5px 10px; font-size:11px;">Delete</button>
+                    <div style="font-size:11px; color:var(--label-color); margin-bottom:5px;">${log.date}</div>
+                    <div style="font-weight:800; font-size:14px; margin-bottom:10px; color:var(--text-color);"><span class="version-badge" style="margin-left:0; margin-right:10px;">${typeBadge}</span></div>
+                    ${exHtml}
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function deleteLog(index) {
+        workoutLogs.splice(index, 1);
+        queueSave();
+        renderLogs();
+    }
+
+    // ================= WORKOUT ROUTINES LOGIC =================
+    function openRoutines() {
+        openCalc('routines');
+        navRoutine('main'); 
+    }
+
+    function navRoutineUI(view) {
+        document.getElementById('routine-main').style.display = 'none';
+        document.getElementById('routine-kai').style.display = 'none';
+        document.getElementById('routine-v1').style.display = 'none';
+        document.getElementById('routine-v2').style.display = 'none';
+        document.getElementById('routine-v3').style.display = 'none';
+        document.getElementById('routine-reps1000').style.display = 'none';
+        document.getElementById('routine-jeff-hypertrophy').style.display = 'none';
+
+        const bText = document.getElementById('back-btn-text');
+
+        if (view === 'main') {
+            document.getElementById('routine-main').style.display = 'block';
+            bText.innerText = 'Back to Menu';
+        } else if (view === 'kai') {
+            document.getElementById('routine-kai').style.display = 'block';
+            bText.innerText = 'Back to Authors';
+        } else if (view === 'jeff-hypertrophy') {
+            document.getElementById('routine-jeff-hypertrophy').style.display = 'block';
+            bText.innerText = 'Back to Authors';
+            initRoutines('jeff-hypertrophy');
+        } else if (view === 'v1') {
+            document.getElementById('routine-v1').style.display = 'block';
+            bText.innerText = 'Back to Programs';
+            initRoutines('v1');
+        } else if (view === 'v2') {
+            document.getElementById('routine-v2').style.display = 'block';
+            bText.innerText = 'Back to Programs';
+            initRoutines('v2');
+        } else if (view === 'v3') {
+            document.getElementById('routine-v3').style.display = 'block';
+            bText.innerText = 'Back to Programs';
+            initRoutines('v3');
+        } else if (view === 'reps1000') {
+            document.getElementById('routine-reps1000').style.display = 'block';
+            bText.innerText = 'Back to Programs';
+            initRoutines('reps1000');
+        }
+    }
+
+    function navRoutine(view) {
+        history.pushState({ page: 'routine', view: view }, '');
+        navRoutineUI(view);
+    }
+
+    // ================= WORKOUT ROUTINES DATABASES =================
+    const v1Routines = {
+        "Chest": {
+            plans: [
+                { name: "Workout #1", exercises: [
+                    { n: "1A. DB Bench Press", s: "6", r: "16, 12, 8, 5, 5, 14 (0s rest)" }, 
+                    { n: "1B. Standing Cable Flys", s: "6", r: "16, 12, 8, 5, 5, 14 (30s rest)" }, 
+                    { n: "2A. Cable Chest Press", s: "6", r: "16, 12, 8, 5, 5, 14 (0s rest)" }, 
+                    { n: "2B. Incline BB Press", s: "6", r: "12, 10, 8, 6, 6, 12 (30s rest)" }, 
+                    { n: "3A. Pec Deck Flys", s: "4", r: "15, 12, 10, 8 (0s rest)" }, 
+                    { n: "3B. Pushups", s: "6", r: "20 (60s rest)" }
+                ]},
+                { name: "Workout #2", exercises: [
+                    { n: "1A. BB Bench Press", s: "6", r: "16, 12, 8, 5, 5, 14 (0s rest)" }, 
+                    { n: "1B. Incline DB Flys", s: "6", r: "16, 12, 8, 5, 5, 14 (30s rest)" }, 
+                    { n: "2A. Decline DB Press", s: "5", r: "12, 10, 8, 6, 15 (0s rest)" }, 
+                    { n: "2B. Flat DB Flys", s: "4", r: "12, 10, 8, 8 (30s rest)" }, 
+                    { n: "3A. Chest Dips", s: "4", r: "To Failure (0s rest)" }, 
+                    { n: "3B. Pushups", s: "6", r: "20 (60s rest)" }
+                ]}
+            ]
+        },
+        "Back": {
+            plans: [
+                { name: "Workout #1", exercises: [
+                    { n: "1A. Bent Over BB Row", s: "6", r: "16, 10, 12, 16, 10, 12 (0s rest)" }, 
+                    { n: "1B. Hyperextension", s: "6", r: "12 (30s rest)" }, 
+                    { n: "2A. Lat Pull Down", s: "6", r: "16, 10, 12, Fail, 10, 12 (0s rest)" }, 
+                    { n: "2B. T-Bar Row", s: "6", r: "16, 10, 12, Fail, 10, 12 (30s rest)" }, 
+                    { n: "3A. Seated Cable Row", s: "5", r: "15, 12, 10, 8, 12 (0s rest)" }, 
+                    { n: "3B. Pull Ups", s: "4", r: "To Failure (60s rest)" }
+                ]},
+                { name: "Workout #2", exercises: [
+                    { n: "1A. Wide Grip Pull Up", s: "6", r: "10-15 (0s rest)" }, 
+                    { n: "1B. Deadlift", s: "6", r: "12, 10, 8, 5, 5, 3 (45s rest)" }, 
+                    { n: "2A. Single Arm DB Row", s: "5", r: "12, 10, 8, 8, 12 (0s rest)" }, 
+                    { n: "2B. Straight Arm Pulldown", s: "4", r: "15, 12, 12, 10 (30s rest)" }, 
+                    { n: "3A. Reverse Pec Deck", s: "4", r: "15 (0s rest)" }, 
+                    { n: "3B. Hyperextension", s: "4", r: "15 (45s rest)" }
+                ]}
+            ]
+        },
+        "Arms": {
+            plans: [
+                { name: "Workout A", exercises: [
+                    { n: "1A. Reverse Curls", s: "3", r: "12 (0s rest)" }, 
+                    { n: "1B. Hammer Curls", s: "3", r: "12 (30s rest)" }, 
+                    { n: "2A. Barbell Curls", s: "3", r: "10 (0s rest)" }, 
+                    { n: "2B. Tricep Pushdown", s: "3", r: "12 (30s rest)" }, 
+                    { n: "3A. Overhead Extension", s: "3", r: "12 (0s rest)" }, 
+                    { n: "3B. DB Kickbacks", s: "3", r: "15 (30s rest)" }
+                ]},
+                { name: "Workout B", exercises: [
+                    { n: "1A. Band Rev Curls", s: "3", r: "12 (0s rest)" }, 
+                    { n: "1B. Band Hammer Curls", s: "3", r: "12 (30s rest)" }, 
+                    { n: "2A. Incline DB Curls", s: "3", r: "10 (0s rest)" }, 
+                    { n: "2B. Rope Pushdowns", s: "3", r: "12 (30s rest)" }, 
+                    { n: "3A. Skullcrushers", s: "3", r: "10 (0s rest)" }, 
+                    { n: "3B. Close Grip Pushups", s: "3", r: "To Failure (30s rest)" }
+                ]}
+            ]
+        },
+        "Quads": {
+            plans: [
+                { name: "Workout #1", exercises: [
+                    { n: "1A. Sissy Squats", s: "5", r: "8 (0s rest)" }, 
+                    { n: "1B. Front Squats", s: "5", r: "8 @ 75% (45s rest)" }, 
+                    { n: "2A. Jefferson Squats", s: "5", r: "8 @ 75% (0s rest)" }, 
+                    { n: "2B. Leg Extensions", s: "5", r: "8 @ 75% (45s rest)" }, 
+                    { n: "3A. Leg Press", s: "5", r: "10 @ 70% (0s rest)" }, 
+                    { n: "3B. Goblet Squats", s: "4", r: "12 (45s rest)" }
+                ]},
+                { name: "Workout #2", exercises: [
+                    { n: "1A. Sissy Squats", s: "5", r: "5 @ 85% (0s rest)" }, 
+                    { n: "1B. Front Squats", s: "5", r: "5 @ 85% (60s rest)" }, 
+                    { n: "2A. Jefferson Squats", s: "5", r: "5 @ 85% (0s rest)" }, 
+                    { n: "2B. Leg Extensions", s: "5", r: "5 @ 85% (60s rest)" }, 
+                    { n: "3A. Hack Squats", s: "4", r: "6 @ 80% (0s rest)" }, 
+                    { n: "3B. Walking Lunges", s: "4", r: "12 steps (60s rest)" }
+                ]}
+            ]
+        },
+        "Hamstrings": {
+            plans: [
+                { name: "Workout #1", exercises: [
+                    { n: "1A. Glute Bridge", s: "3", r: "12 (0s rest)" }, 
+                    { n: "1B. Straight Leg DL", s: "5", r: "5 @ 85% (60s rest)" }, 
+                    { n: "2A. Norwegian Ham Curls", s: "4", r: "8 (0s rest)" }, 
+                    { n: "2B. Multi-D Ham Curls", s: "4", r: "20 @ 65% (45s rest)" }, 
+                    { n: "3A. Lying Leg Curls", s: "4", r: "12, 10, 8, 8 (0s rest)" }, 
+                    { n: "3B. Seated Leg Curls", s: "4", r: "15 (45s rest)" }
+                ]},
+                { name: "Workout #2", exercises: [
+                    { n: "1A. Multi-D Ham Curls", s: "4", r: "12 @ 70% (0s rest)" }, 
+                    { n: "1B. Straight Leg DL", s: "4", r: "16 @ 65% (60s rest)" }, 
+                    { n: "2A. Norwegian Ham Curls", s: "5", r: "8 (0s rest)" }, 
+                    { n: "2B. Glute Bridge", s: "4", r: "20 (45s rest)" }, 
+                    { n: "3A. Swiss Ball Curls", s: "4", r: "15 (0s rest)" }, 
+                    { n: "3B. Good Mornings", s: "4", r: "12 (60s rest)" }
+                ]}
+            ]
+        },
+        "Legs": {
+            plans: [
+                { name: "Workout #1", exercises: [
+                    { n: "1A. Hack Squat", s: "6", r: "8, 3, 5, Fail, 8, 5 (0s rest)" }, 
+                    { n: "1B. Stiff Leg DB DL", s: "6", r: "8, 3, 5, Fail, 8, 5 (45s rest)" }, 
+                    { n: "2A. Barbell Squats", s: "6", r: "8, 3, 5, Fail, 8, 5 (0s rest)" }, 
+                    { n: "2B. Jefferson Squats", s: "6", r: "8, 3, 5, Fail, 8, 5 (45s rest)" }, 
+                    { n: "3A. Leg Press", s: "6", r: "8, 3, 5, Fail, 8, 5 (0s rest)" }, 
+                    { n: "3B. Leg Extensions", s: "4", r: "15 (45s rest)" }
+                ]},
+                { name: "Workout #2", exercises: [
+                    { n: "1A. Front Squats", s: "5", r: "10, 8, 6, 6, 12 (0s rest)" }, 
+                    { n: "1B. Walking Lunges", s: "4", r: "20 steps (60s rest)" }, 
+                    { n: "2A. Bulgarian Split Squats", s: "4", r: "10 / leg (0s rest)" }, 
+                    { n: "2B. Leg Extensions", s: "5", r: "12, 10, 8, 8, 15 (45s rest)" }, 
+                    { n: "3A. Glute Ham Raises", s: "4", r: "To Failure (0s rest)" }, 
+                    { n: "3B. Box Jumps", s: "3", r: "10 jumps (45s rest)" }
+                ]}
+            ]
+        }
+    };
+
+    const v2Routines = {
+        "Chest": {
+            plans: [
+                { name: "Workout #1", exercises: [
+                    { n: "1A. Hanging Band Bench", s: "4", r: "12 (0s rest)" }, 
+                    { n: "1B. Incline DB Press", s: "4", r: "12 (45s rest)" }, 
+                    { n: "2A. Svend Press", s: "4", r: "12 (0s rest)" }, 
+                    { n: "2B. DB Pull Over", s: "4", r: "12 (45s rest)" }, 
+                    { n: "3A. Incline Cable Fly", s: "4", r: "20 (45s rest)" }
+                ]}
+            ]
+        },
+        "Back": {
+            plans: [
+                { name: "Workout #1", exercises: [
+                    { n: "1A. Inverted Chaos Row", s: "4", r: "12 (0s rest)" }, 
+                    { n: "1B. Bent Over BB Row", s: "4", r: "10 (45s rest)" }, 
+                    { n: "2A. Eccentric Pulldown", s: "4", r: "10 (0s rest)" }, 
+                    { n: "2B. Archer Pull Up", s: "4", r: "To Failure (45s rest)" }, 
+                    { n: "3A. Deadlifts", s: "4", r: "8 (60s rest)" }
+                ]}
+            ]
+        }
+    };
+
+    const v3Routines = {
+        "Chest": {
+            plans: [
+                { name: "Workout #1", exercises: [
+                    { n: "1A. DB Chest Press", s: "4", r: "30, 30, 30, Fail (0s rest)" }, 
+                    { n: "1B. Stability Push Up", s: "4", r: "30, 30, 30, Fail (60s rest)" }, 
+                    { n: "2A. Incline DB Press", s: "4", r: "12, 12, 10, 10 (0s rest)" }, 
+                    { n: "2B. Pec Deck Flys", s: "4", r: "15, 15, 12, 12 (45s rest)" }, 
+                    { n: "3A. Cable Crossovers", s: "4", r: "20 (45s rest)" }
+                ]}
+            ]
+        }
+    };
+
+    const reps1000Routines = {
+        "Arms": {
+            plans: [
+                {
+                    name: "The Thousand Reps Workout",
+                    exercises: [
+                        { n: "1. EZ Bar Curl",        s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "2. V-Bar Pushdown",     s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "3. DB Curl",             s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "4. OH Cable Ext",        s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "5. Hammer Curls",        s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "6. Rope Pushdowns",      s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "7. Incline DB Curls",    s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "8. DB Kickbacks",        s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "9. Spider Curls",        s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "10. Skullcrushers",      s: "5", r: "20 reps", rest: "60s" }
+                    ]
+                }
+            ]
+        },
+        "Chest": {
+            plans: [
+                {
+                    name: "Opening The Floodgates",
+                    exercises: [
+                        { n: "1. Dumbbell Press",      s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "2. Chest Dips",          s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "3. Incline DB Press",    s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "4. Standing Cable Fly",  s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "5. Svend Press",         s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "6. Incline DB Fly",      s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "7. Incline BB Press",    s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "8. Pec Deck Fly",        s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "9. Pushups",             s: "5", r: "20 reps", rest: "30-60s" },
+                        { n: "10. Decline DB Press",   s: "5", r: "20 reps", rest: "60s" }
+                    ]
+                }
+            ]
+        }
+    };
+
+    const jeffHypertrophyRoutines = {
+        "Arms Hypertrophy": {
+            plans: [
+                {
+                    name: "Day 1 (Arm Day)",
+                    exercises: [
+                        { n: "1. Close Grip Bench", s: "3", r: "6-8 (120s rest)" },
+                        { n: "2. Machine Preacher", s: "2", r: "12-15 (90s rest)" },
+                        { n: "3. Standing EZ Bar Curl", s: "4", r: "6-8 (120s rest)" },
+                        { n: "4. Bayesian Cable Curl", s: "3", r: "12-15 (90s rest)" },
+                        { n: "5. Tricep Pressdown", s: "4", r: "10-12 (90s rest)" }
+                    ]
+                },
+                {
+                    name: "Day 2 (Supplemental A)",
+                    exercises: [
+                        { n: "1. DB Conc. Curl", s: "3", r: "8-10 (90s rest)" },
+                        { n: "2. Incline DB Curl 21s", s: "2", r: "21 (90s rest)" },
+                        { n: "3. Weighted Dip", s: "3", r: "12-15 (90s rest)" }
+                    ]
+                }
+            ]
+        },
+        "Chest Hypertrophy": {
+            plans: [
+                {
+                    name: "Day 1",
+                    exercises: [
+                        { n: "1. Bench Press", s: "3", r: "6 (120s rest)" },
+                        { n: "2. Incline DB Press", s: "3", r: "8-10 (90s rest)" },
+                        { n: "3. Banded Pushup", s: "4", r: "12-15 (90s rest)" },
+                        { n: "4. Flat DB Static Hold", s: "2", r: "60 sec (60s rest)" }
+                    ]
+                },
+                {
+                    name: "Day 2",
+                    exercises: [
+                        { n: "1. Close Grip Bench", s: "4", r: "6-8 (120s rest)" },
+                        { n: "2. Bayesian Cable Flye", s: "3", r: "12-15 (90s rest)" },
+                        { n: "3. Bodyweight Dip", s: "2", r: "AMRAP (90s rest)" }
+                    ]
+                }
+            ]
+        },
+        "Back Hypertrophy": {
+            plans: [
+                {
+                    name: "Day 1 (Strength Focus)",
+                    exercises: [
+                        { n: "1. Rack Pull (Below Knee)", s: "3", r: "6-8 (120s rest)" },
+                        { n: "2. 1-Arm Lat Pull In", s: "2", r: "12-15 (90s rest)" },
+                        { n: "3. Wide Grip Pull Up", s: "4", r: "6-8 (120s rest)" },
+                        { n: "4. Chest T-Bar Row", s: "3", r: "6-8 (120s rest)" }
+                    ]
+                },
+                {
+                    name: "Day 2 (Hypertrophy Focus)",
+                    exercises: [
+                        { n: "1. Rope Pullover", s: "2", r: "15-20 (90s rest)" },
+                        { n: "2. Bent Over BB Row", s: "3", r: "14 (90s rest)" },
+                        { n: "3. Omni-Grip Pulldown", s: "3", r: "12-15 (90s rest)" }
+                    ]
+                }
+            ]
+        },
+        "Shoulder Hypertrophy": {
+            plans: [
+                {
+                    name: "Day 1 (Shoulder Day)",
+                    exercises: [
+                        { n: "1. Cable Ext Rotation", s: "2", r: "12-15 (60s rest)" },
+                        { n: "2. Standing OH BB Press", s: "4", r: "4 (120s rest)" },
+                        { n: "3. Lean-Away Lateral", s: "3", r: "12-15 (90s rest)" },
+                        { n: "4. Banded Lateral Raise", s: "2", r: "30 (60s rest)" }
+                    ]
+                }
+            ]
+        },
+        "Glute Hypertrophy": {
+            plans: [
+                {
+                    name: "Day 1 (Lower Body Strength)",
+                    exercises: [
+                        { n: "1. Back Squat", s: "3", r: "5 (180s rest)" },
+                        { n: "2. Romanian Deadlift", s: "3", r: "6-8 (120s rest)" },
+                        { n: "3. Seated Leg Curl", s: "3", r: "12-15 (90s rest)" },
+                        { n: "4. Machine Abduction", s: "3", r: "25-30 (60s rest)" }
+                    ]
+                }
+            ]
+        },
+        "Forearm Hypertrophy": {
+            plans: [
+                {
+                    name: "Day 1 (Strength Focus)",
+                    exercises: [
+                        { n: "1. Heavy Barbell Holds", s: "2", r: "20 sec (60s rest)" },
+                        { n: "2. Braced Wrist Curl", s: "2", r: "10-12 (60s rest)" },
+                        { n: "3. Standing Wrist Ext", s: "2", r: "10-12 (60s rest)" }
+                    ]
+                }
+            ]
+        }
+    };
+
+    function populateAccordion(targetId, db) {
+        const container = document.getElementById(`routine-accordion-container-${targetId}`);
+        if(container && container.innerHTML.trim() !== '') return; 
+        
+        let fullHtml = '';
+        Object.keys(db).forEach(muscle => {
+            let contentHtml = "";
+            db[muscle].plans.forEach(plan => {
+                contentHtml += `<div class="workout-plan"><div class="workout-plan-title">${plan.name}</div><div class="workout-table"><div class="wt-header"><div class="wt-col-name">Exercise/Item</div><div class="wt-col-sets">Sets</div><div class="wt-col-reps">Reps/Details</div><div class="wt-col-rest">Rest</div></div>`;
+                plan.exercises.forEach(ex => {
+                    
+                    let repText = ex.r;
+                    let restText = ex.rest || "-";
+                    
+                    if (!ex.rest) {
+                        // Regex extract rest time from reps string
+                        let match = repText.match(/\(([^)]+rest|[\d]+s|[\d]+ sec[^)]*|[-])\)$/i);
+                        if(match) {
+                            restText = match[1].replace(/rest/ig, '').trim();
+                            repText = repText.substring(0, match.index).trim();
+                        }
+                    }
+
+                    contentHtml += `<div class="wt-row ${getSupGroupClass(ex.n)}"><div class="wt-col-name">${ex.n}</div><div class="wt-col-sets">${ex.s}</div><div class="wt-col-reps">${repText}</div><div class="wt-col-rest">${restText}</div></div>`;
+                });
+                contentHtml += `</div></div>`;
+            });
+            fullHtml += `<div class="accordion"><div class="acc-header" onclick="toggleAcc(this)"><span>${muscle}</span><span class="acc-icon" style="color:var(--accent); font-size:18px;">+</span></div><div class="acc-content">${contentHtml}</div></div>`;
+        });
+        if(container) container.innerHTML = fullHtml;
+    }
+
+    function initRoutines(version) {
+        let db = version === 'v1' ? v1Routines : 
+                 version === 'v2' ? v2Routines : 
+                 version === 'v3' ? v3Routines : 
+                 version === 'jeff-hypertrophy' ? jeffHypertrophyRoutines : 
+                 reps1000Routines;
+                 
+        populateAccordion(version, db);
+    }
+
+    // ================= HEIGHT UNIT TOGGLE HELPER =================
+    function onHUnitChange(prefix) {
+        const unit = document.getElementById(prefix + '-h-unit').value;
+        const isCompound = (unit === 'ft_in');
+        const box1 = document.getElementById(prefix + '-h1');
+        const box2 = document.getElementById(prefix + '-h2');
+        box2.style.display = isCompound ? 'block' : 'none';
+        box1.placeholder = isCompound ? 'ft' : 'cm';
+        box2.placeholder = isCompound ? 'in' : '';
+    }
+
+    // ================= GLOBAL SYNC LOGIC =================
+    document.addEventListener('DOMContentLoaded', () => {
+        const syncInputs = (selector, eventType) => {
+            document.querySelectorAll(selector).forEach(el => {
+                el.addEventListener(eventType, (e) => {
+                    document.querySelectorAll(selector).forEach(target => {
+                        if (target !== e.target) {
+                            target.value = e.target.value;
+                            // Trigger specific functions if needed
+                            if (selector === '.sync-gen') {
+                                if (target.id === 'bf-gen' && typeof updateCaliperLabels === 'function') updateCaliperLabels();
+                                if (target.id === 'navy-sex' && typeof toggleNavyHip === 'function') toggleNavyHip();
+                            }
+                            if (selector === '.sync-h-unit') {
+                                if (target.id === 'met-h-unit') onHUnitChange('met');
+                                if (target.id === 'navy-h-unit') onHUnitChange('navy');
+                            }
+                        }
+                    });
+                });
+            });
+        };
+
+        syncInputs('.sync-age', 'input');
+        syncInputs('.sync-w', 'input');
+        syncInputs('.sync-gen', 'change');
+        syncInputs('.sync-h1', 'input');
+        syncInputs('.sync-h2', 'input');
+        syncInputs('.sync-h-unit', 'change');
+    });
+
+    // ================= BODY METRICS LOGIC =================
+    function runMetrics() {
+        const gen = document.getElementById('met-gen').value;
+        const age = parseFloat(document.getElementById('met-age').value);
+        const w   = parseFloat(document.getElementById('met-w').value);
+        
+        const hUnit = document.getElementById('met-h-unit').value;
+        let h = parseFloat(document.getElementById('met-h1').value);
+        let h2 = parseFloat(document.getElementById('met-h2').value) || 0;
+
+        if (hUnit === 'ft_in') {
+            h = (h * 12 + h2) * 2.54; // Convert feet/inches to cm
+        }
+
+        const act = parseFloat(document.getElementById('met-act').value);
+        if (!age || !w || !h) return alert('Please fill in all fields.');
+        let bmr = gen === 'male'
+            ? 10*w + 6.25*h - 5*age + 5
+            : 10*w + 6.25*h - 5*age - 161;
+        const tdee   = Math.round(bmr * act);
+        const bmi    = (w / Math.pow(h/100, 2)).toFixed(1);
+        bmr = Math.round(bmr);
+        const bmiCat = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Normal' : bmi < 30 ? 'Overweight' : 'Obese';
+        const res = document.getElementById('res-metrics');
+        res.style.display = 'block';
+        res.innerHTML = `
+            <div class="res-primary">${tdee}</div>
+            <div class="res-label">TDEE (Maintenance Calories)</div>
+            <div class="res-grid">
+                <div class="res-box"><span>BMR (Base)</span><strong>${bmr} kcal</strong></div>
+                <div class="res-box"><span>BMI</span><strong>${bmi} — ${bmiCat}</strong></div>
+                <div class="res-box"><span>Fat Loss</span><strong>${tdee - 500} kcal</strong></div>
+                <div class="res-box"><span>Muscle Gain</span><strong>${tdee + 300} kcal</strong></div>
+            </div>
+        `;
+        document.getElementById('mac-cal').value = tdee;
+    }
+
+    // ================= MACRO CALCULATOR LOGIC =================
+    function runMacro() {
+        let cal = parseFloat(document.getElementById('mac-cal').value);
+        const goal = document.getElementById('mac-goal').value;
+        if (!cal) return alert('Please enter your Target Daily Calories (TDEE).');
+        if (goal === 'cut')  cal -= 500;
+        if (goal === 'bulk') cal += 500;
+        const protein   = Math.round((cal * 0.30) / 4);
+        const carbs     = Math.round((cal * 0.40) / 4);
+        const fat       = Math.round((cal * 0.30) / 9);
+        const goalLabel = goal === 'cut' ? 'Fat Loss' : goal === 'bulk' ? 'Muscle Gain' : 'Maintenance';
+        const res = document.getElementById('res-macro');
+        res.style.display = 'block';
+        res.innerHTML = `
+            <div class="res-primary">${Math.round(cal)}</div>
+            <div class="res-label">Adjusted Calories — ${goalLabel}</div>
+            <div class="res-grid">
+                <div class="res-box"><span>Protein (30%)</span><strong>${protein}g</strong></div>
+                <div class="res-box"><span>Carbs (40%)</span><strong>${carbs}g</strong></div>
+                <div class="res-box"><span>Fat (30%)</span><strong>${fat}g</strong></div>
+                <div class="res-box"><span>Goal</span><strong>${goalLabel}</strong></div>
+            </div>
+        `;
+        document.getElementById('dp-cal').value = Math.round(cal);
+    }
+
+    // ================= BODY FAT (JACKSON-POLLOCK 3-SITE) =================
+    function updateCaliperLabels() {
+        const gen = document.getElementById('bf-gen').value;
+        if (gen === 'male') {
+            document.getElementById('label-site1').innerText = 'Chest';
+            document.getElementById('label-site2').innerText = 'Abdominal';
+            document.getElementById('label-site3').innerText = 'Thigh';
+        } else {
+            document.getElementById('label-site1').innerText = 'Tricep';
+            document.getElementById('label-site2').innerText = 'Suprailiac';
+            document.getElementById('label-site3').innerText = 'Thigh';
+        }
+    }
+
+    function runBF() {
+        const gen = document.getElementById('bf-gen').value;
+        const age = parseFloat(document.getElementById('bf-age').value);
+        const s1  = parseFloat(document.getElementById('bf-s1').value);
+        const s2  = parseFloat(document.getElementById('bf-s2').value);
+        const s3  = parseFloat(document.getElementById('bf-s3').value);
+        if (!age || !s1 || !s2 || !s3) return alert('Please fill in all fields.');
+        const sum = (s1 + s2 + s3) * 25.4; // inches to mm
+        let density;
+        if (gen === 'male') {
+            density = 1.10938 - (0.0008267*sum) + (0.0000016*sum*sum) - (0.0002574*age);
+        } else {
+            density = 1.099492 - (0.0009929*sum) + (0.0000023*sum*sum) - (0.0001392*age);
+        }
+        const bf = ((4.95 / density) - 4.50) * 100;
+        const bfR = bf.toFixed(1);
+        let cat = '';
+        if (gen === 'male')   cat = bf<6?'Essential Fat':bf<14?'Athletic':bf<18?'Fitness':bf<25?'Average':'Obese';
+        else                  cat = bf<14?'Essential Fat':bf<21?'Athletic':bf<25?'Fitness':bf<32?'Average':'Obese';
+        const res = document.getElementById('res-bf');
+        res.style.display = 'block';
+        res.innerHTML = `
+            <div class="res-primary">${bfR}%</div>
+            <div class="res-label">Estimated Body Fat — ${cat}</div>
+            <div class="res-grid">
+                <div class="res-box"><span>Sum of Sites</span><strong>${(s1+s2+s3).toFixed(2)} in</strong></div>
+                <div class="res-box"><span>Body Density</span><strong>${density.toFixed(4)}</strong></div>
+                <div class="res-box"><span>Category</span><strong>${cat}</strong></div>
+                <div class="res-box"><span>Lean Mass</span><strong>${(100-bf).toFixed(1)}%</strong></div>
+            </div>
+        `;
+    }
+
+    // ================= WATER INTAKE =================
+    function runWater() {
+        const w    = parseFloat(document.getElementById('wat-w').value);
+        const act  = parseFloat(document.getElementById('wat-act').value);
+        const clim = parseFloat(document.getElementById('wat-clim').value);
+        if (!w) return alert('Please enter your weight.');
+        const base  = w * 0.033;
+        const total = (base + act + clim).toFixed(1);
+        const ml    = Math.round(total * 1000);
+        const glass = Math.round(ml / 250);
+        const res = document.getElementById('res-water');
+        res.style.display = 'block';
+        res.innerHTML = `
+            <div class="res-primary">${total} L</div>
+            <div class="res-label">Daily Water Intake Target</div>
+            <div class="res-grid">
+                <div class="res-box"><span>In Millilitres</span><strong>${ml} ml</strong></div>
+                <div class="res-box"><span>Glasses (250ml)</span><strong>${glass} glasses</strong></div>
+                <div class="res-box"><span>Base Intake</span><strong>${base.toFixed(1)} L</strong></div>
+                <div class="res-box"><span>Activity Added</span><strong>+${(act+clim).toFixed(1)} L</strong></div>
+            </div>
+        `;
+    }
+
+    // ================= DIET PLANNER — UPGRADED INDIAN/GLOBAL FOOD MODAL =================
+    const indianFoodDB = {
+        '🍗 Proteins': [
+            { name: 'Chicken Breast', calPer100: 165, p: 31,   c: 0,    f: 3.6,  type: 'protein' },
+            { name: 'Eggs (Whole)',   calPer100: 155, p: 13,   c: 1.1,  f: 11,   type: 'protein', servingSize: 50,  servingUnit: 'egg' },
+            { name: 'Egg Whites',     calPer100: 52,  p: 10.9, c: 0.7,  f: 0.2,  type: 'protein', servingSize: 33,  servingUnit: 'egg white' },
+            { name: 'Paneer (Low Fat)',calPer100: 265, p: 18.3, c: 3.4,  f: 20.8, type: 'protein' },
+            { name: 'Soya Chunks',    calPer100: 345, p: 52,   c: 33,   f: 0.5,  type: 'protein' },
+            { name: 'Whey Protein',   calPer100: 400, p: 80,   c: 8,    f: 5,    type: 'protein' },
+            { name: 'Greek Yogurt',   calPer100: 59,  p: 10,   c: 3.6,  f: 0.4,  type: 'protein' },
+            { name: 'Fish (Salmon/Rohu)',calPer100: 111,p: 17.6, c: 0,    f: 4.4,  type: 'protein' },
+            { name: 'Tofu',           calPer100: 76,  p: 8,    c: 1.9,  f: 4.5,  type: 'protein' },
+            { name: 'Dal (Masoor/Moong)',calPer100: 116,p: 9,    c: 20,   f: 0.4,  type: 'protein' }
+        ],
+        '🍚 Carbs': [
+            { name: 'White Rice',     calPer100: 130, p: 2.7,  c: 28,   f: 0.3,  type: 'carb' },
+            { name: 'Brown Rice',     calPer100: 111, p: 2.6,  c: 23,   f: 0.9,  type: 'carb' },
+            { name: 'Oats (dry)',     calPer100: 379, p: 13.2, c: 67.7, f: 6.9,  type: 'carb' },
+            { name: 'Sweet Potato',   calPer100: 86,  p: 1.6,  c: 20.1, f: 0.1,  type: 'carb' },
+            { name: 'Quinoa',         calPer100: 120, p: 4.4,  c: 21.3, f: 1.9,  type: 'carb' },
+            { name: 'Rice Cakes',     calPer100: 387, p: 8,    c: 80,   f: 3,    type: 'carb', servingSize: 9, servingUnit: 'cake' },
+            { name: 'Banana',         calPer100: 89,  p: 1.1,  c: 22.8, f: 0.3,  type: 'carb', servingSize: 118, servingUnit: 'banana' },
+            { name: 'Chapati / Roti', calPer100: 297, p: 9,    c: 57,   f: 4,    type: 'carb', servingSize: 35,  servingUnit: 'roti' },
+            { name: 'Brown Bread',    calPer100: 247, p: 9.1,  c: 45.4, f: 3.5,  type: 'carb', servingSize: 28,  servingUnit: 'slice' }
+        ],
+        '🥛 Dairy & Fats': [
+            { name: 'Almonds',        calPer100: 579, p: 21.2, c: 21.6, f: 49.9, type: 'fat' },
+            { name: 'Peanut Butter',  calPer100: 588, p: 22.5, c: 20,   f: 51,   type: 'fat' },
+            { name: 'Walnuts',        calPer100: 654, p: 15.2, c: 13.7, f: 65.2, type: 'fat' },
+            { name: 'Olive Oil',      calPer100: 884, p: 0,    c: 0,    f: 100,  type: 'fat', servingSize: 14, servingUnit: 'tbsp' },
+            { name: 'Ghee',           calPer100: 900, p: 0,    c: 0,    f: 99.8, type: 'fat', servingSize: 14, servingUnit: 'tbsp' },
+            { name: 'Avocado',        calPer100: 160, p: 2,    c: 8.5,  f: 14.7, type: 'fat' },
+            { name: 'Chia Seeds',     calPer100: 486, p: 16.5, c: 42.1, f: 30.7, type: 'fat' }
+        ],
+        '🥦 Vegetables': [
+            { name: 'Broccoli',       calPer100: 34,  p: 2.8,  c: 6.6,  f: 0.4,  type: 'veg' },
+            { name: 'Spinach (Palak)',calPer100: 23,  p: 2.9,  c: 3.6,  f: 0.4,  type: 'veg' },
+            { name: 'Asparagus',      calPer100: 20,  p: 2.2,  c: 3.9,  f: 0.1,  type: 'veg' },
+            { name: 'Green Beans',    calPer100: 31,  p: 1.8,  c: 7,    f: 0.2,  type: 'veg' },
+            { name: 'Mixed Vegetables',calPer100: 50, p: 2,    c: 10,   f: 0.3,  type: 'veg' },
+            { name: 'Cucumber',       calPer100: 16,  p: 0.7,  c: 3.6,  f: 0.1,  type: 'veg' }
+        ]
+    };
+
+    let customFoods = [];
+    let selectedFoods = [];
+    let generatedDietText = '';
+
+    function formatFoodDisplay(food, grams) {
+        if (food.servingSize && food.servingUnit) {
+            const pieces = Math.max(1, Math.round(grams / food.servingSize));
+            const actualGrams = Math.round(pieces * food.servingSize);
+            return { label: pieces + ' ' + food.servingUnit + (pieces !== 1 ? 's' : ''), grams: actualGrams };
+        }
+        return { label: grams + 'g', grams };
+    }
+
+    function openFoodModal() {
+        const cal = parseFloat(document.getElementById('dp-cal').value);
+        if (!cal) return alert('Please enter (or auto-fill) your Target Daily Calories first.');
+        renderFoodModal();
+        document.getElementById('food-modal').classList.add('show');
+    }
+
+    function renderFoodModal() {
+        const body = document.getElementById('food-modal-body');
+        let html = '';
+        if (customFoods.length > 0) {
+            html += '<div class="food-cat-title">⭐ My Custom Foods</div><div class="food-check-grid">';
+            customFoods.forEach((food, idx) => {
+                const isSelected = selectedFoods.some(f => f.name === food.name);
+                html += buildFoodItem(food, isSelected, true, idx);
+            });
+            html += '</div>';
+        }
+        Object.keys(indianFoodDB).forEach(cat => {
+            html += '<div class="food-cat-title">' + cat + '</div><div class="food-check-grid">';
+            indianFoodDB[cat].forEach((food, idx) => {
+                const isSelected = selectedFoods.some(f => f.name === food.name);
+                html += buildFoodItem(food, isSelected, false, idx);
+            });
+            html += '</div>';
+        });
+        body.innerHTML = html;
+    }
+
+    function buildFoodItem(food, isSelected, isCustom, idx) {
+        const safeName = food.name.replace(/'/g, "\\'");
+        const sel = isSelected ? ' selected' : '';
+        const editBtn = '<button onclick="editFoodMacros(\'' + safeName + '\',' + isCustom + ')" style="background:rgba(108,92,231,0.15);border:none;border-radius:5px;padding:4px 6px;cursor:pointer;font-size:11px;color:var(--accent);">✏️</button>';
+        const delBtn  = isCustom ? '<button onclick="deleteCustomFood(' + idx + ')" style="background:rgba(255,0,0,0.1);border:none;border-radius:5px;padding:4px 6px;cursor:pointer;font-size:11px;color:#e74c3c;">🗑️</button>' : '';
+        return '<div class="food-check-item' + sel + '" onclick="toggleFood(this,\'' + safeName + '\')">'
+            + '<div class="food-check-dot"></div>'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div class="food-check-label">' + food.name + '</div>'
+            + '<div class="food-check-macro">P:' + food.p + 'g C:' + food.c + 'g F:' + food.f + 'g</div>'
+            + '</div>'
+            + '<div style="display:flex;gap:4px;flex-shrink:0;" onclick="event.stopPropagation()">'
+            + editBtn + delBtn
+            + '</div></div>';
+    }
+
+    function closeFoodModal() {
+        document.getElementById('food-modal').classList.remove('show');
+        const form = document.getElementById('add-food-form');
+        if (form) form.style.display = 'none';
+    }
+
+    function handleModalOutsideClick(e) {
+        if (e.target === document.getElementById('food-modal')) closeFoodModal();
+    }
+
+    function toggleFood(el, foodName) {
+        el.classList.toggle('selected');
+        const allFoods = [...Object.values(indianFoodDB).flat(), ...customFoods];
+        const food = allFoods.find(f => f.name === foodName);
+        if (!food) return;
+        const idx = selectedFoods.findIndex(f => f.name === foodName);
+        if (idx > -1) selectedFoods.splice(idx, 1);
+        else selectedFoods.push(Object.assign({}, food));
+    }
+
+    function showAddFoodForm() {
+        document.getElementById('add-food-form').style.display = 'block';
+        document.getElementById('add-food-form').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function saveCustomFood() {
+        const name  = document.getElementById('cf-name').value.trim();
+        const kcal  = parseFloat(document.getElementById('cf-kcal').value);
+        const p     = parseFloat(document.getElementById('cf-p').value) || 0;
+        const c     = parseFloat(document.getElementById('cf-c').value) || 0;
+        const f     = parseFloat(document.getElementById('cf-f').value) || 0;
+        const type  = document.getElementById('cf-type').value;
+        if (!name) return alert('Please enter a food name.');
+        if (!kcal) return alert('Please enter calories per 100g.');
+        if (customFoods.some(cf => cf.name === name)) return alert('A food with this name already exists.');
+        customFoods.push({ name, calPer100: kcal, p, c, f, type, isCustom: true });
+        queueSave();
+        ['cf-name','cf-kcal','cf-p','cf-c','cf-f'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('add-food-form').style.display = 'none';
+        renderFoodModal();
+    }
+
+    function deleteCustomFood(idx) {
+        customFoods.splice(idx, 1);
+        queueSave();
+        renderFoodModal();
+    }
+
+    function editFoodMacros(foodName, isCustom) {
+        const allFoods = [...Object.values(indianFoodDB).flat(), ...customFoods];
+        const food = allFoods.find(f => f.name === foodName);
+        if (!food) return;
+        const newP = prompt('Edit Protein (g per 100g) for "' + foodName + '":', food.p);
+        if (newP === null) return;
+        const newC = prompt('Edit Carbs (g per 100g):', food.c);
+        if (newC === null) return;
+        const newF = prompt('Edit Fat (g per 100g):', food.f);
+        if (newF === null) return;
+        const newK = prompt('Edit Calories (kcal per 100g):', food.calPer100);
+        if (newK === null) return;
+        food.p = parseFloat(newP) || food.p;
+        food.c = parseFloat(newC) || food.c;
+        food.f = parseFloat(newF) || food.f;
+        food.calPer100 = parseFloat(newK) || food.calPer100;
+        const selIdx = selectedFoods.findIndex(f => f.name === foodName);
+        if (selIdx > -1) selectedFoods[selIdx] = Object.assign({}, food);
+        if (isCustom) queueSave();
+        renderFoodModal();
+    }
+
+    function generateFromSelectedFoods() {
+        const totalCal  = parseFloat(document.getElementById('dp-cal').value);
+        const mealCount = parseInt(document.getElementById('dp-count').value);
+        if (!totalCal) return alert('Please enter your Target Daily Calories.');
+        if (selectedFoods.length < 2) return alert('Please select at least 2 foods.');
+        closeFoodModal();
+
+        const proteins = selectedFoods.filter(f => f.type === 'protein');
+        const carbs    = selectedFoods.filter(f => f.type === 'carb');
+        const fats     = selectedFoods.filter(f => f.type === 'fat');
+        const vegs     = selectedFoods.filter(f => f.type === 'veg');
+
+        // SMART CALORIE & PURPOSE DISTRIBUTION CONFIGURATIONS
+        const mealConfigs = {
+            3: [
+                { name: 'Breakfast', pct: 30 },
+                { name: 'Lunch', pct: 35 },
+                { name: 'Dinner', pct: 35 }
+            ],
+            4: [
+                { name: 'Breakfast', pct: 25 },
+                { name: 'Lunch', pct: 25 },
+                { name: 'Pre/Post-Workout', pct: 20 },
+                { name: 'Dinner', pct: 30 }
+            ],
+            5: [
+                { name: 'Breakfast', pct: 20 },
+                { name: 'Lunch', pct: 25 },
+                { name: 'Pre-Workout', pct: 15 },
+                { name: 'Post-Workout', pct: 15 },
+                { name: 'Dinner', pct: 25 }
+            ],
+            6: [
+                { name: 'Breakfast', pct: 20 },
+                { name: 'Mid Morning', pct: 10 },
+                { name: 'Lunch', pct: 20 },
+                { name: 'Pre-Workout', pct: 10 },
+                { name: 'Post-Workout', pct: 15 },
+                { name: 'Dinner', pct: 25 }
+            ]
+        };
+
+        const config = mealConfigs[mealCount];
+        let cardsHtml = '';
+        let textLines  = [`CUSTOM DIET PLAN — ${Math.round(totalCal)} kcal/day`,''];
+        let dayP=0,dayC=0,dayF=0,dayKcal=0;
+
+        for (let m = 0; m < mealCount; m++) {
+            let mealProfile = config[m];
+            let mealCalTarget = totalCal * (mealProfile.pct / 100);
+
+            // Smart Macro Assignment Based on Meal Purpose
+            let pRatio = 0.35, cRatio = 0.40, fRatio = 0.15, vRatio = 0.10; // Default (Lunch)
+
+            if (mealProfile.name.includes('Breakfast')) {
+                pRatio = 0.45; cRatio = 0.35; fRatio = 0.15; vRatio = 0.05; // High Protein
+            } else if (mealProfile.name.includes('Pre-Workout')) {
+                pRatio = 0.35; cRatio = 0.55; fRatio = 0.05; vRatio = 0.05; // High Carb, Low Fat
+            } else if (mealProfile.name.includes('Post-Workout') || mealProfile.name.includes('Pre/Post')) {
+                pRatio = 0.45; cRatio = 0.50; fRatio = 0.05; vRatio = 0.00; // High P/C, No Fat
+            } else if (mealProfile.name.includes('Dinner')) {
+                pRatio = 0.40; cRatio = 0.20; fRatio = 0.25; vRatio = 0.15; // Slower digestion, Veg & Fat
+            }
+
+            let mealFoods = [];
+            if (proteins.length > 0) mealFoods.push({ food: proteins[m % proteins.length], portion: pRatio });
+            if (carbs.length > 0)    mealFoods.push({ food: carbs[m % carbs.length],    portion: cRatio });
+            if (fats.length > 0)     mealFoods.push({ food: fats[m % fats.length],      portion: fRatio });
+            if (vegs.length > 0 && vRatio > 0) mealFoods.push({ food: vegs[m % vegs.length], portion: vRatio });
+            
+            // Fallback normalization
+            if (mealFoods.length === 0) {
+                const pick = selectedFoods.slice(0, 3);
+                mealFoods = pick.map(food => ({ food, portion: 1 / pick.length }));
+            }
+            const totalPortion = mealFoods.reduce((a,b) => a + b.portion, 0);
+            mealFoods = mealFoods.map(item => ({ ...item, portion: item.portion / totalPortion }));
+
+            let foodItemsHtml = '';
+            let mealP=0,mealC=0,mealF=0,mealKcal=0;
+            
+            const mealLabelDisplay = `${mealProfile.name} <span style="font-size:12px; color:var(--label-color); font-weight:600;">(${mealProfile.pct}% Cal)</span>`;
+            textLines.push(`--- ${mealProfile.name} (${mealProfile.pct}%) ---`);
+
+            mealFoods.forEach(({ food, portion }) => {
+                const foodCalTarget = mealCalTarget * portion;
+                const rawGrams = Math.round((foodCalTarget / food.calPer100) * 100);
+                const display  = formatFoodDisplay(food, rawGrams);
+                const grams    = display.grams;
+                const fP     = Math.round(food.p * grams / 100);
+                const fC     = Math.round(food.c * grams / 100);
+                const fF     = Math.round(food.f * grams / 100);
+                const fKcal  = Math.round(grams * food.calPer100 / 100);
+                mealP+=fP; mealC+=fC; mealF+=fF; mealKcal+=fKcal;
+                foodItemsHtml += `<div class="food-item">${food.name} — <b>${display.label}</b><span class="item-macros">P: ${fP}g | C: ${fC}g | F: ${fF}g | ${fKcal} kcal</span></div>`;
+                textLines.push(`  ${food.name}: ${display.label}  (P:${fP}g C:${fC}g F:${fF}g ${fKcal}kcal)`);
+            });
+            dayP+=mealP; dayC+=mealC; dayF+=mealF; dayKcal+=mealKcal;
+            textLines.push(`  Total: ${mealKcal} kcal | P:${mealP}g C:${mealC}g F:${mealF}g`,'');
+            
+            cardsHtml += `
+                <div class="meal-box">
+                    <span class="meal-title">${mealLabelDisplay}</span>
+                    ${foodItemsHtml}
+                    <div class="macro-container">
+                        <span class="macro-tag kcal-tag">${mealKcal} kcal</span>
+                        <span class="macro-tag">P: ${mealP}g</span>
+                        <span class="macro-tag">C: ${mealC}g</span>
+                        <span class="macro-tag">F: ${mealF}g</span>
+                    </div>
+                </div>`;
+        }
+        textLines.push(`DAILY TOTALS: ${dayKcal} kcal | Protein: ${dayP}g | Carbs: ${dayC}g | Fat: ${dayF}g`);
+        generatedDietText = textLines.join('\n');
+
+        const resDiv = document.getElementById('res-diet-plan');
+        resDiv.style.display = 'block';
+        resDiv.innerHTML = `<button class="btn btn-copy" onclick="copyDiet()" style="margin-bottom:15px;">Copy Diet Plan</button><div id="diet-cards">${cardsHtml}</div>`;
+    }
+
+    function runDietPlanner() { openFoodModal(); }
+
+    function copyDiet() {
+        if (!generatedDietText) return alert('No diet plan generated yet.');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(generatedDietText)
+                .then(() => alert('Diet plan copied to clipboard!'))
+                .catch(() => fallbackCopy());
+        } else { fallbackCopy(); }
+    }
+
+    function fallbackCopy() {
+        const ta = document.createElement('textarea');
+        ta.value = generatedDietText;
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        try { document.execCommand('copy'); alert('Diet plan copied to clipboard!'); }
+        catch(e) { alert('Copy failed — please manually select and copy.'); }
+        document.body.removeChild(ta);
+    }
+
+    // ================= SUPERSET COLOR HELPER =================
+    function getSupGroupClass(exName) {
+        const match = exName.match(/^(\d+)([A-Za-z])[.\s]/);
+        if (!match) return 'ss-single';
+        return 'ss-group-' + Math.min(parseInt(match[1]), 5);
+    }
+
+    // ================= BODY FAT — TABS =================
+    function switchBFTab(tab, el) {
+        document.querySelectorAll('#calc-bf .inner-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('bf-tab-caliper').style.display = tab === 'caliper' ? 'block' : 'none';
+        document.getElementById('bf-tab-navy').style.display    = tab === 'navy'    ? 'block' : 'none';
+    }
+
+    // ================= NAVY BODY FAT =================
+    // Convert any unit pair to inches
+    function navyToInches(v1, v2, unit) {
+        v1 = parseFloat(v1) || 0;
+        v2 = parseFloat(v2) || 0;
+        switch(unit) {
+            case 'cm':   return v1 / 2.54;
+            case 'm':    return (v1 * 100) / 2.54;
+            case 'in':   return v1;
+            case 'ft':   return v1 * 12;
+            case 'ft_in':return v1 * 12 + v2;
+            case 'm_cm': return (v1 * 100 + v2) / 2.54;
+            default:     return v1;
+        }
+    }
+
+    // Show/hide second input box for compound units (ft/in, m/cm)
+    function onNavyUnitChange(field) {
+        const unitSel = document.getElementById('navy-' + field + '-unit');
+        if (!unitSel) return;
+        const unit = unitSel.value;
+        const isCompound = unit === 'ft_in' || unit === 'm_cm';
+        const box2 = document.getElementById('navy-' + field + '2');
+        if (box2) {
+            box2.style.display = isCompound ? 'block' : 'none';
+            box2.placeholder   = unit === 'ft_in' ? 'in' : 'cm';
+        }
+    }
+
+    // Show hip field for females only
+    function toggleNavyHip() {
+        const sex = document.getElementById('navy-sex').value;
+        document.getElementById('navy-hip-group').style.display = sex === 'female' ? 'block' : 'none';
+    }
+
+    function runNavyBF() {
+        const sex  = document.getElementById('navy-sex').value;
+        const age  = parseFloat(document.getElementById('navy-age').value);
+
+        const hUnit     = document.getElementById('navy-h-unit').value;
+        const neckUnit  = document.getElementById('navy-neck-unit').value;
+        const waistUnit = document.getElementById('navy-waist-unit').value;
+
+        const heightIn = navyToInches(document.getElementById('navy-h1').value,     document.getElementById('navy-h2').value,     hUnit);
+        const neckIn   = navyToInches(document.getElementById('navy-neck1').value,   document.getElementById('navy-neck2').value,   neckUnit);
+        const waistIn  = navyToInches(document.getElementById('navy-waist1').value,  document.getElementById('navy-waist2').value,  waistUnit);
+
+        if (!age)      return alert('Please enter your Age.');
+        if (!heightIn) return alert('Please enter your Height.');
+        if (!neckIn)   return alert('Please enter Neck circumference.');
+        if (!waistIn)  return alert('Please enter Waist circumference.');
+
+        let bf;
+        if (sex === 'male') {
+            if (waistIn <= neckIn) return alert('Waist must be larger than your Neck measurement.');
+            // US Navy male formula
+            bf = 86.010 * Math.log10(waistIn - neckIn) - 70.041 * Math.log10(heightIn) + 36.76;
+        } else {
+            const hipUnit = document.getElementById('navy-hip-unit').value;
+            const hipIn   = navyToInches(document.getElementById('navy-hip1').value, document.getElementById('navy-hip2').value, hipUnit);
+            if (!hipIn) return alert('Please enter Hip circumference.');
+            // US Navy female formula
+            bf = 163.205 * Math.log10(waistIn + hipIn - neckIn) - 97.684 * Math.log10(heightIn) - 78.387;
+        }
+
+        bf = Math.max(0, bf);
+        const bfR      = bf.toFixed(1);
+        const leanMass = (100 - bf).toFixed(1);
+        const heightCm = (heightIn * 2.54).toFixed(1);
+        const waistCm  = (waistIn  * 2.54).toFixed(1);
+
+        // Age-adjusted US Navy BF% limits
+        const mLimits = [[21,22],[26,22],[31,23],[36,24],[41,26],[46,28],[200,30]];
+        const fLimits = [[21,33],[26,34],[31,35],[36,36],[41,37],[46,38],[200,39]];
+        const limits  = sex === 'male' ? mLimits : fLimits;
+        const limit   = (limits.find(l => age < l[0]) || limits[limits.length-1])[1];
+        const passes  = bf <= limit;
+
+        let fitCat = sex === 'male'
+            ? (bf<6?'Essential Fat':bf<14?'Athletic':bf<18?'Fitness':bf<25?'Average':'Above Average')
+            : (bf<14?'Essential Fat':bf<21?'Athletic':bf<25?'Fitness':bf<32?'Average':'Above Average');
+
+        const res = document.getElementById('res-navy-bf');
+        res.style.display = 'block';
+        res.innerHTML = `
+            <div class="res-primary">${bfR}%</div>
+            <div class="res-label">Estimated Body Fat (Navy Method)</div>
+            <div style="margin:12px 0; padding:10px 14px; border-radius:8px; background:${passes?'rgba(16,172,132,0.12)':'rgba(231,76,60,0.12)'}; font-size:13px; font-weight:700; color:${passes?'#10ac84':'#e74c3c'}; text-align:center;">
+                ${passes ? '✅ Congratulations! You meet the US Navy body fat standards!' : '❌ Sorry, you do not meet the US Navy standard. Keep training!'}
+                <div style="font-size:10px; margin-top:4px; opacity:0.75;">Limit for age ${age}: ${limit}%</div>
+            </div>
+            <div class="res-grid">
+                <div class="res-box"><span>Lean Mass</span><strong>${leanMass}%</strong></div>
+                <div class="res-box"><span>Category</span><strong>${fitCat}</strong></div>
+                <div class="res-box"><span>Height</span><strong>${heightCm} cm</strong></div>
+                <div class="res-box"><span>Waist</span><strong>${waistCm} cm</strong></div>
+            </div>
+        `;
+    }
+
+    function toggleAcc(el) {
+        let content = el.nextElementSibling;
+        let icon = el.querySelector('.acc-icon');
+        if (content.style.maxHeight) { 
+            content.style.maxHeight = null; 
+            icon.innerText = '+'; 
+        } else { 
+            content.style.maxHeight = content.scrollHeight + "px"; 
+            icon.innerText = '−'; 
+        }
+    }
+
+</script>
+</body>
+</html>
